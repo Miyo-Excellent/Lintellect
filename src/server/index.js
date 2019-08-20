@@ -106,12 +106,12 @@ app.use((req, res, next) => {
 app.use('/graphql', graphqlHTTP(serverConfig.graphqlOptions));
 
 //  Users
-app.post('/signin', isAuth, signIn);
-app.post('/signup', isAuth, signUp);
+app.post('/signin', signIn);
+app.post('/signup', signUp);
 
 //  Products
-app.get('/api/products', getProducts);
-app.get('/api/product/:productId', getProduct);
+app.get('/api/products', isAuth, getProducts);
+app.get('/api/product/:productId', isAuth, getProduct);
 app.post('/api/product', isAuth, saveProduct);
 app.put('/api/product/:productId', isAuth, updateProducts);
 app.delete('/api/product/:productId', isAuth, deleteProducts);
