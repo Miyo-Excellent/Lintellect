@@ -77,6 +77,32 @@
 > }
 >```
 
+### ¿Como solicitar un producto?
+> Es necesario enviar datos al end-point (GET), el JSON/TOKEN debe ir en `Headers` de la petición con el nombre/key `authorization`
+>ejemplo 
+>```json
+>{
+>  "headers": {
+>    "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjYxNzQ2MDUsImV4cCI6MTU2Njg2NTgwNX0.cqJ50JYUJ3s4iWre76zCat9E5yqYrryp-OUZLezWnjI"
+>  }
+>}
+>```
+> Siguiente Paso.
+> `localhost:3000/api/product/:product_id`
+
+### ¿Como todos los productos?
+> Es necesario enviar datos al end-point (GET), el JSON/TOKEN debe ir en `Headers` de la petición con el nombre/key `authorization`
+>ejemplo 
+>```json
+>{
+>  "headers": {
+>    "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjYxNzQ2MDUsImV4cCI6MTU2Njg2NTgwNX0.cqJ50JYUJ3s4iWre76zCat9E5yqYrryp-OUZLezWnjI"
+>  }
+>}
+>```
+> Siguiente Paso.
+> `localhost:3000/api/products`
+
 ### ¿Como crear un producto?
 > Es necesario enviar datos al end-point (POST), el JSON/TOKEN debe ir en `Headers` de la petición con el nombre/key `authorization`
 >ejemplo 
