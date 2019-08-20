@@ -90,7 +90,7 @@
 > Siguiente Paso.
 > `localhost:3000/api/product/:product_id`
 
-### ¿Como todos los productos?
+### ¿Como solicitar todos los productos?
 > Es necesario enviar datos al end-point (GET), el JSON/TOKEN debe ir en `Headers` de la petición con el nombre/key `authorization`
 >ejemplo 
 >```json
