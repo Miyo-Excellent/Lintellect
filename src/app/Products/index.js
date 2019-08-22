@@ -15,7 +15,6 @@ import {connect} from "react-redux";
 
 class Products extends Component {
   static onclickProduct({id, type = '', dataUpdated = {}}) {
-    debugger;
     switch (type) {
       case 'delete':
         return onDeleteProduct(id);

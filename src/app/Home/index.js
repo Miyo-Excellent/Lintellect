@@ -11,21 +11,31 @@ import {Layout, Tabs} from '../common-components';
 import styles from './home.scss';
 
 class Home extends Component {
+  static navRenderChildren(path) {
+    switch (path) {
+      case 'products':
+        return <Products />;
+
+      case 'newProduct':
+        return null;
+
+      default:
+        return null;
+    }
+  }
+
   constructor(props) {
     super(props);
 
     this.nav = [
-      {
-        title: 'Productos',
-        Children: () => <Products products={this.state.products} />
-      }
+      {title: 'Productos', Children: () => Home.navRenderChildren('products')},
+      {title: 'Crear un Producto', Children: () => Home.navRenderChildren('newProduct')}
     ];
 
-    this.state = {
-      products: []
-    };
-
+    this.state = {};
   }
+
+
 
   render() {
     const {nav} = this;
@@ -42,11 +52,8 @@ class Home extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = state => ({});
 
-});
-
-const mapDispatchToProps = dispatch => ({
-});
+const mapDispatchToProps = dispatch => ({});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

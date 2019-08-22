@@ -35,10 +35,10 @@ export function fetchProducts(dispatch) {
     });
 }
 
-export function fetchUpdateProducts(dispatch, dataUpdated) {
-  debugger;
-  return onEditProduct({dataUpdated}).then(async data => {
+export function fetchUpdateProducts(dispatch, id, dataUpdated) {
+  return onEditProduct({id, dataUpdated}).then(async data => {
     const _data_ = data;
+    console.log('Upadating Product: ', data);
     debugger;
 
     await updateProducts(dispatch);
@@ -48,12 +48,7 @@ export function fetchUpdateProducts(dispatch, dataUpdated) {
 }
 
 export function fetchDeleteProducts(dispatch, id) {
-  debugger;
-  return onDeleteProduct(id).then(async ({data}) => {
-    const _data_ = data;
-    debugger;
-    await updateProducts(dispatch);
-  }).catch(error => {
+  return onDeleteProduct(id).then(async ({data}) => await updateProducts(dispatch)).catch(error => {
     console.log(error);
   });
 }

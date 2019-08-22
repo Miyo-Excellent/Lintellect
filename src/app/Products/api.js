@@ -15,19 +15,24 @@ export async function getProducts() {
 }
 
 export async function onDeleteProduct(id) {
-  const _id_ = id;
-  debugger;
-  return await axios.delete(`http://localhost:3000/api/product/${id}`, {headers: {authorization: token}})
+  return await axios.delete(`http://localhost:3000/api/product/${id}`, {
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Access-Control-Allow-Origin': '*',
+      authorization: token
+    }
+  })
     .then((data) => data)
     .catch(error => console.error(error));
 }
 
 export async function onEditProduct({id, dataUpdated}) {
-  const _id_ = id;
-  debugger;
-  return await axios.put(`http://localhost:3000/api/product/${id}`, {
-    headers: {authorization: token},
-    body: dataUpdated
+  return await axios.put(`http://localhost:3000/api/product/${id}`, dataUpdated, {
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Access-Control-Allow-Origin': '*',
+      authorization: token
+    }
   })
     .then((data) => data)
     .catch(error => console.error(error));

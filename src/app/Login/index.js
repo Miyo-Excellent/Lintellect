@@ -37,8 +37,6 @@ class Login extends Component {
 
     axios.post('http://localhost:3000/signin', {email, password})
       .then(({data}) => {
-        debugger;
-
         localStorage.setItem('TOKEN', `Bearer ${data.token}`);
 
         this.setState(state => ({

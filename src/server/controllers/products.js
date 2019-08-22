@@ -4,7 +4,6 @@ import {Product} from '../models';
 export async function getProducts(req, res) {
   console.log('GET: /api/products');
 
-
   Product.find(function (error, products) {
     if (error) {
       return res.status(500).send({message: `Error al solicitar producto en la base de datos ${error}`});
@@ -19,8 +18,7 @@ export async function getProducts(req, res) {
 }
 
 export async function getProduct(req, res) {
-  const {productId} = await req.params;
-
+  const productId = req.params.productId || req.body.productId || req.query.productId;
 
   console.log('GET: /api/product');
 
@@ -38,9 +36,8 @@ export async function getProduct(req, res) {
 }
 
 export async function updateProducts(req, res) {
-  const {productId} = await req.params;
-  const update = req.query;
-
+  const productId = req.params.productId || req.body.productId || req.query.productId;
+  const update = req.body || req.query;
 
   Product.findByIdAndUpdate(productId, update, function (error, productUpdated) {
     if (error) {
@@ -51,7 +48,10 @@ export async function updateProducts(req, res) {
       return res.status(404).send({message: 'El producto no existe'});
     }
 
-    res.status(200).send({product: productUpdated});
+    res.status(200).send({
+      message: 'El producto se actualizo',
+      product: productUpdated
+    });
   });
 }
 
