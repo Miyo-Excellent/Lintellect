@@ -2,6 +2,12 @@
 @import './global-mixins';
 @import "./normalize";
 
+.w100v {
+    width: 100vw;
+}
+.h100v {
+    height: 100vw;
+}
 body {
   //    background-color: $gray;
 }

@@ -15,8 +15,15 @@ export default type => {
       use: {
         loader: 'babel-loader',
         query: {
-          plugins: ['lodash'],
+          plugins: [
+            'lodash',
+            'transform-class-properties'
+          ],
           presets: [
+            'es2015',
+            'react',
+            'stage-0',
+            'stage-2',
             [
               'env',
               {
@@ -100,9 +107,9 @@ export default type => {
               options: {
                 sourceMap: isDevelopment,
                 plugins: () => [
-                  require("postcss-import")(),
-                  require("postcss-cssnext")(),
-                  require("cssnano")()
+                  require('postcss-import')(),
+                  require('postcss-cssnext')(),
+                  require('cssnano')()
                 ]
               }
             }
@@ -135,9 +142,9 @@ export default type => {
               options: {
                 sourceMap: isDevelopment,
                 plugins: () => [
-                  require("postcss-import")(),
-                  require("postcss-cssnext")(),
-                  require("cssnano")()
+                  require('postcss-import')(),
+                  require('postcss-cssnext')(),
+                  require('cssnano')()
                 ]
               }
             },
@@ -174,9 +181,9 @@ export default type => {
               options: {
                 sourceMap: isDevelopment,
                 plugins: () => [
-                  require("postcss-import")(),
-                  require("postcss-cssnext")(),
-                  require("cssnano")()
+                  require('postcss-import')(),
+                  require('postcss-cssnext')(),
+                  require('cssnano')()
                 ]
               }
             },
@@ -219,9 +226,9 @@ export default type => {
             options: {
               sourceMap: isDevelopment,
               plugins: () => [
-                require("postcss-import")(),
-                require("postcss-cssnext")(),
-                require("cssnano")()
+                require('postcss-import')(),
+                require('postcss-cssnext')(),
+                require('cssnano')()
               ]
             }
           }
@@ -252,9 +259,9 @@ export default type => {
             options: {
               sourceMap: isDevelopment,
               plugins: () => [
-                require("postcss-import")(),
-                require("postcss-cssnext")(),
-                require("cssnano")()
+                require('postcss-import')(),
+                require('postcss-cssnext')(),
+                require('cssnano')()
               ]
             }
           },
@@ -289,9 +296,9 @@ export default type => {
             options: {
               sourceMap: isDevelopment,
               plugins: () => [
-                require("postcss-import")(),
-                require("postcss-cssnext")(),
-                require("cssnano")()
+                require('postcss-import')(),
+                require('postcss-cssnext')(),
+                require('cssnano')()
               ]
             }
           },

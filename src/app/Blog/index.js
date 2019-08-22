@@ -1,6 +1,10 @@
 // Dependencices
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import {Container} from 'semantic-ui-react';
+
+// Common Components
+import {Layout} from '../common-components';
 
 // Components
 import Posts from './components/Posts';
@@ -10,7 +14,6 @@ import {fetchPosts} from './actions';
 
 // Utils
 import {isFirstRender} from '../../shared/utils/data';
-import {Link} from "react-router-dom";
 
 class Blog extends Component {
   static initialAction(fetchFrom) {
@@ -27,10 +30,11 @@ class Blog extends Component {
     const {posts} = this.props;
 
     return (
-      <div>
-        Blog - <Link to="/about">About</Link> - <Link to="/">Home</Link> - <Link to="/login">Login</Link>
-        <Posts posts={posts}/>
-      </div>
+      <Layout {...this.props}>
+        <Container>
+          <Posts posts={posts}/>
+        </Container>
+      </Layout>
     );
   }
 }

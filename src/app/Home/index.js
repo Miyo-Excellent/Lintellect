@@ -1,22 +1,52 @@
 // Dependencies
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {Container} from 'semantic-ui-react';
+import Products from '../Products';
+import {Layout, Tabs} from '../common-components';
+
+//  Actions
 
 // Styles
-import styles from './Home.scss';
+import styles from './home.scss';
 
-class Index extends Component {
-  componentDidMount() {
-    const token = localStorage.getItem('token');
+class Home extends Component {
+  constructor(props) {
+    super(props);
+
+    this.nav = [
+      {
+        title: 'Productos',
+        Children: () => <Products products={this.state.products} />
+      }
+    ];
+
+    this.state = {
+      products: []
+    };
+
   }
 
   render() {
+    const {nav} = this;
+
     return (
-      <div className={styles.home}>
-        Home - <Link to="/about">About</Link> - <Link to="/blog">Blog</Link> - <Link to="/login">Login</Link>
-      </div>
+      <Layout {...this.props}>
+        <Container>
+          <div className={[styles.home]}>
+            <Tabs data={nav}/>
+          </div>
+        </Container>
+      </Layout>
     );
   }
 }
 
-export default Index;
+const mapStateToProps = state => ({
+
+});
+
+const mapDispatchToProps = dispatch => ({
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

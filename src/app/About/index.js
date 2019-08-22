@@ -1,15 +1,18 @@
 // Dependencies
-import React, { Component } from 'react';
-import {Link} from 'react-router-dom';
+import React, {Component} from 'react';
+import {Layout} from '../common-components';
+import {Container} from 'semantic-ui-react';
 
-class Index extends Component {
+class About extends Component {
   render() {
     return (
-      <div className="about">
-        About - <Link to="/blog">Blog</Link> - <Link to="/">Home</Link> - <Link to="/login">Login</Link>
-      </div>
+      <Layout {...this.props}>
+        <Container className="about">
+          <p>About</p>
+        </Container>
+      </Layout>
     );
   }
 }
 
-export default Index;
+export default About;

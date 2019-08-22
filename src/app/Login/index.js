@@ -1,26 +1,111 @@
 // Dependencies
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
-import {Container, Button} from 'semantic-ui-react';
+import axios from 'axios';
+import {Link, Redirect} from 'react-router-dom';
+import {Container, Button, Form} from 'semantic-ui-react';
 
 // Styles
-import styles from './Login.scss';
+import styles from './login.scss';
 
 class Login extends Component {
-  componentDidMount() {
-    const token = localStorage.getItem('token');
+  static token = localStorage.getItem('TOKEN');
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      email: '',
+      password: '',
+      acceptTerms: false,
+      isFetching: false,
+      redirect: false,
+      path: ''
+    };
+
+    this.onChangeState = this.onChangeState.bind(this);
+    this.onLogin = this.onLogin.bind(this);
+  }
+
+  componentWillMount() {
+    if (Login.token) {
+      this.setState({redirect: true, path: ''});
+    }
+  }
+
+  onLogin() {
+    const {email, password} = this.state;
+
+    axios.post('http://localhost:3000/signin', {email, password})
+      .then(({data}) => {
+        debugger;
+
+        localStorage.setItem('TOKEN', `Bearer ${data.token}`);
+
+        this.setState(state => ({
+          ...state,
+          isFetching: false,
+          redirect: true,
+          path: ''
+        }));
+
+      })
+      .catch(error => console.log(error));
+  }
+
+  onChangeState({key = '', value = ''}) {
+    this.setState({[key]: value});
   }
 
   render() {
-    return (
-      <div className={styles.login}>
-        <Link className="navbar-brand logo" to="/">Lintellect</Link>
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/blog">Blog</Link>
+    const {acceptTerms, isFetching, email, path, password, redirect} = this.state;
+    const {history} = this.props;
 
-        <Button>Click Here</Button>
-      </div>
+    if (redirect) {
+      history.replace({pathname: path === '' ? '/' : `/${path}`});
+      location.reload();
+      return (
+        <Redirect to={`/${path}`}/>
+      );
+    }
+
+    return (
+      <Container>
+        <div className={styles.login}>
+          <Form>
+            <Form.Input
+              required
+              fluid
+              label='Email'
+              placeholder='Email'
+              onChange={(_event_, {value}) => this.onChangeState({key: 'email', value})}
+            />
+            <Form.Input
+              required
+              fluid
+              label='Password'
+              placeholder='Password'
+              onChange={(_event_, {value}) => this.onChangeState({key: 'password', value})}
+            />
+            <Form.Checkbox
+              required
+              checked={acceptTerms}
+              label='I agree to the Terms and Conditions'
+              error={!acceptTerms}
+              onChange={(_event_, data) => this.onChangeState({key: 'acceptTerms', value: !acceptTerms})}
+            />
+
+            <div className={styles.submit}>
+              <Button
+                color={!!email && !!password && !!acceptTerms ? 'green' : 'red'}
+                className={styles['submit-btn']}
+                onClick={this.onLogin}
+              >
+                Sing In
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </Container>
     );
   }
 }

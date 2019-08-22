@@ -10,10 +10,12 @@ export default async function decodeToken(token) {
     try {
       const payload = jwt.encode(token, serverConfig.SECRET_TOKEN);
 
-      if (payload.exp <= moment().unix()) reject({
-        status: 401,
-        message: 'El token ha expirado'
-      });
+      if (payload.exp <= moment().unix()) {
+        reject({
+          status: 401,
+          message: 'El token ha expirado'
+        });
+      }
 
       resolve(payload.sub);
     } catch (error) {

@@ -14,13 +14,19 @@ const UserSchema = Schema({
 });
 
 UserSchema.pre('save', function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    return next();
+  }
 
   bcrypt.genSalt(10, (error, salt) => {
-    if (error) return next();
+    if (error) {
+      return next();
+    }
 
     bcrypt.hash(this.password, salt, null, (err, hash) => {
-      if (error) return next();
+      if (error) {
+        return next();
+      }
 
       this.password = hash;
       next();
@@ -30,7 +36,9 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.methods.gravatar = function () {
   const user = this;
-  if (!user.email) return `https://gravatar.com/avatar/?s=200&d=retro`;
+  if (!user.email) {
+    return 'https://gravatar.com/avatar/?s=200&d=retro';
+  }
 
   const md5 = crypto.createHash('md5').update(user.email).digest('hex');
 

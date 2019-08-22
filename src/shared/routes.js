@@ -1,10 +1,9 @@
-// Components
+// Containers
 import Home from '../app/Home';
 import Login from '../app/Login';
 import About from '../app/About';
+import Blog from '../app/Blog/';
 
-// Containers
-import Blog from '../app/Blog';
 
 const routes = [
   {
@@ -14,8 +13,7 @@ const routes = [
   },
   {
     path: '/Login',
-    component: Login,
-    exact: true
+    component: Login
   },
   {
     path: '/About',

@@ -176,7 +176,9 @@ mongoose.connect(serverConfig.db, err => {
         ============================================================================================================================
         `);
 
-      if (isOpenBrowser) open(`http://localhost:${port}`);
+      if (isOpenBrowser) {
+        open(`http://localhost:${port}`);
+      }
     }
   });
 });

@@ -2,10 +2,6 @@
 import React from 'react';
 import { BrowserRouter, StaticRouter, Switch, Route } from 'react-router-dom';
 
-// import default style
-import '../shared/styles/_global-mixins.scss';
-import 'semantic-ui-css/semantic.min.css';
-
 // Routes
 import routes from '../shared/routes';
 

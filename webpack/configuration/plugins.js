@@ -12,9 +12,6 @@ const isAnalyzer = process.env.ANALYZER === 'true';
 
 export default type => {
   const plugins = [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
-    }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new ExtractTextPlugin({
       filename: '../../public/css/style.css'

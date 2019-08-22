@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import timeAgo from 'node-time-ago';
 
 // Utils
-import { isFirstRender } from '../../../shared/utils/data';
+import { isFirstRender } from '../../../../shared/utils/data';
 
 // Styles
-import styles from './Posts.scss';
+import styles from './posts.scss';
 
-class Posts extends Component {
+class Index extends Component {
   render() {
     const { posts } = this.props;
 
@@ -38,4 +38,4 @@ class Posts extends Component {
   }
 }
 
-export default Posts;
+export default Index;
