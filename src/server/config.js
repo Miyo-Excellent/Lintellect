@@ -23,10 +23,16 @@ const firebase = {
   //  credential: firebaseAdmin.credential.cert(serviceAccount),
   //  databaseURL: 'https://lintellect-48520.firebaseio.com'
 
-  credential: firebaseAdmin.credential.refreshToken(serviceAccount),
+  credential: firebaseAdmin.credential.refreshToken('./serviceAccountKey'),
   databaseURL: 'https://lintellect-48520.firebaseio.com'
 };
 
-const config = {db, graphqlOptions, SECRET_TOKEN, firebase};
+const cloudinary = {
+  cloud_name: 'miyoexcellent',
+  api_key: '742424741884311',
+  api_secret: 'JeiN1mVtFmN_lTFV5F3OROnnRCU'
+};
+
+const config = {db, graphqlOptions, SECRET_TOKEN, firebase, cloudinary};
 
 export default config;

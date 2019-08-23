@@ -1,11 +1,21 @@
 //  Dependencies
 import fs from 'fs';
 import multiparty from 'multiparty';
+import cloudinary from 'cloudinary';
+import _ from 'lodash';
 
 //  Services
-import {firebase} from '../services';
+
 //  Models
 import {Product} from '../models';
+
+async function cloudinaryUploadFile({filepath, options = {}}) {
+  function callback(result) {
+    resolve({url: result.url, id: result.public_id});
+  }
+
+  return cloudinary.uploader.upload(filepath, options, callback, {resource_type: 'auto'});
+}
 
 export async function getProducts(req, res) {
   console.log('GET: /api/products');
@@ -37,7 +47,7 @@ export async function getProduct(req, res) {
       return res.status(404).send({message: 'El producto no existe'});
     }
 
-    res.status(200).send({product});
+    return res.status(200).send({product});
   });
 }
 
@@ -63,55 +73,65 @@ export async function updateProducts(req, res) {
 
 export async function saveProduct(req, res) {
   const form = new multiparty.Form();
+  const storingProduct = (filepath, {name, picture, price, category, description}) => {
+    const product = new Product({name, picture, price, category, description});
 
-  console.log('POST: /api/product');
-  form.parse(req, function (err, {name, price, category, description}, files) {
-    const bucketNameExt = `${files.picture[0].headers['content-type']}`.split('/')[1];
-    const patName = 'images';
-    const bucketName = name[0].split(' ').join('_');
-    const bucketFullName = `${name[0].split(' ').join('_')}.${bucketNameExt}`;
 
-    const bucket = firebase.storage.bucket(patName);
-    debugger;
-    const file = bucket.file(bucketFullName);
-    const buffer = fs.createWriteStream();
-  debugger;
-    file.save(files.picture[0], error => {
-      debugger;
-      if (error) {
-        debugger;
-        console.log(error);
-      }
-    });
-    debugger;
-
-    const product = new Product();
-
-    debugger;
-    product.name = name[0];
-    product.picture = `https://storage.googleapis.com/${patName}/${bucketFullName}`;
-    product.price = price[0];
-    product.category = category[0];
-    product.description = description[0];
     debugger;
 
     product.save(function (error, productStored) {
-      debugger;
       if (error) {
-        debugger;
         return res.status(500).send({message: `Error al guardar producto en la base de datos ${error}`});
       }
 
-      debugger;
       if (!productStored) {
-        debugger;
         return res.status(404).send({message: 'El producto no existe'});
       }
 
-      debugger;
-      res.status(200).send({product: productStored});
+      fs.unlinkSync(filepath);
+
+      return res.status(200).json({message: 'el Producto se almaceno correctamente', product: productStored});
     });
-  }).catch(error => console.log(error));
+  };
+
+  console.log('POST: /api/product');
+
+  form.parse(req, async function (err, {name, price, category, description}, files) {
+    const uniqueFilename = new Date().toISOString();
+    const patName = 'products';
+    const bucketName = name[0].split(' ').join('_');
+    const filepath = !_.isEmpty(files) ? files.picture[0].path : '';
+
+    if (filepath) {
+      cloudinaryUploadFile({
+        filepath,
+        options: {
+          folder: patName,
+          public_id: `${patName}/${bucketName}__${uniqueFilename}`,
+          tags: patName,
+          eager: [
+            { width: 400, height: 300, crop: "pad" },
+            { width: 260, height: 200, crop: "crop", gravity: "north"} ]
+        }
+      })
+      //  .uploads(filepath)
+        .then(async function ({url}) {
+          return storingProduct(filepath, {
+            name: name[0],
+            picture: url,
+            price: price[0],
+            category: category[0],
+            description: description[0]
+          });
+        });
+    } else {
+      return storingProduct(filepath, {name: name[0],
+        picture: '',
+        price: price[0],
+        category: category[0],
+        description: description[0]});
+    }
+  });
 }
 
 export async function deleteProducts(req, res) {

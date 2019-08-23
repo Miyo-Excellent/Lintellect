@@ -12,6 +12,7 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackHotServerMiddleware from 'webpack-hot-server-middleware';
 import {ApolloServer} from 'apollo-server-express';
 import firebase from 'firebase-admin';
+import cloudinary from 'cloudinary';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*****************************************Middlewares**********************************************/
@@ -43,6 +44,9 @@ import {signIn, signInWithGoogle, signUp} from './controllers/user';
 
 /******************************************Firebase************************************************/
 firebase.initializeApp(serverConfig.firebase);
+
+/*****************************************Cloudinary***********************************************/
+cloudinary.v2.config(serverConfig.cloudinary);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*****************************************Environment*********************************************/
