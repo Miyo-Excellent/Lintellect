@@ -4,7 +4,7 @@ import {Card, Image, Button, Form} from 'semantic-ui-react';
 import {connect} from 'react-redux';
 
 //  Actions
-import {fetchDeleteProducts, fetchUpdateProducts} from '../../Products/actions';
+import {fetchDeleteProducts, fetchUpdateProducts} from '../Products/actions';
 
 //  Styles
 import styles from './product.scss';
@@ -15,6 +15,11 @@ class Product extends Component {
 
     this.state = {
       editing: false,
+      categories: [
+        {text: 'Computadoras', value: 'computers'},
+        {text: 'Telefonos', value: 'phones'},
+        {text: 'accesorios', value: 'accesories'}
+      ],
       dataUpdated: {
         category: '',
         description: '',
@@ -55,7 +60,7 @@ class Product extends Component {
 
   render() {
     const {data, deleteProduct, updateProduct} = this.props;
-    const {editing, dataUpdated} = this.state;
+    const {editing, dataUpdated, categories} = this.state;
 
     return (
       <Card>
@@ -70,7 +75,7 @@ class Product extends Component {
                 <Form.Input
                   fluid
                   label='Nombre'
-                  placeholder={dataUpdated ? dataUpdated.name : 'Nombre'}
+                  placeholder={dataUpdated.name ? dataUpdated.name : 'Nombre'}
                   onChange={(_event_, {value}) => this.handleChangeDataUpdated({key: 'name', value})}
                 />
 
@@ -78,7 +83,7 @@ class Product extends Component {
                   fluid
                   type="file"
                   label='Imagen'
-                  placeholder={dataUpdated ? dataUpdated.picture : 'Imagen'}
+                  placeholder={dataUpdated.picture ? dataUpdated.picture : 'Imagen'}
                   onChange={(_event_, data) => {
                     const file = _event_.target.files[0];
 
@@ -89,42 +94,25 @@ class Product extends Component {
                 <Form.Input
                   fluid
                   label='Precio'
-                  placeholder={dataUpdated ? dataUpdated.price : 'Precio'}
+                  placeholder={dataUpdated.price ? dataUpdated.price : 'Precio'}
                   onChange={(_event_, {value}) => this.handleChangeDataUpdated({key: 'price', value})}
                 />
 
                 <Form.TextArea
                   label='Descripción'
-                  placeholder={dataUpdated ? dataUpdated.price : 'Tell us more about product...'}
+                  placeholder={dataUpdated.description ? dataUpdated.description : 'Tell us more about product...'}
                   onChange={(_event_, {value}) => this.handleChangeDataUpdated({key: 'description', value})}
                 />
               </div>
 
-              <div className={[styles.center, styles.mv5, styles.w100]}>
-                <Form.Group inline>
-                  <label>Categoria</label>
-                  <div>
-                    <Form.Radio
-                      label='Computers'
-                      value='computers'
-                      checked={dataUpdated.category === 'computers'}
-                      onChange={() => this.handleChangeDataUpdated({key: 'category', value: 'computers'})}
-                    />
-                    <Form.Radio
-                      label='Phones'
-                      value='phones'
-                      checked={dataUpdated.category === 'phones'}
-                      onChange={() => this.handleChangeDataUpdated({key: 'category', value: 'phones'})}
-                    />
-                    <Form.Radio
-                      label='Accesories'
-                      value='accesories'
-                      checked={dataUpdated.category === 'accesories'}
-                      onChange={() => this.handleChangeDataUpdated({key: 'category', value: 'accesories'})}
-                    />
-                  </div>
-                </Form.Group>
-              </div>
+              <Form.Select
+                fluid label='Categorias'
+                options={categories}
+                placeholder='Categorias'
+                onChange={(_event_, {value}) => {
+                  this.handleChangeDataUpdated({key: 'price', value});
+                }}
+              />
 
               <Form.Group>
                 <div className={styles.center}>
@@ -132,7 +120,15 @@ class Product extends Component {
                     <Button
                       positive
                       className={styles['submit-btn']}
-                      onClick={() => updateProduct({id: data._id, dataUpdated})}
+                      onClick={() => {
+                        Promise
+                          .resolve()
+                          .then(() => {
+                            updateProduct({id: data._id, dataUpdated});
+                          })
+                          .then(() => this.setState({editing: false}))
+                          .catch(error => console.log(error));
+                      }}
                     >Guardar</Button>
 
                     <Button.Or text="O"/>
@@ -154,7 +150,7 @@ class Product extends Component {
             <Card.Header>{data.name}</Card.Header>
 
             <Card.Meta>
-              <span className='date'>Joined in 2015</span>
+              <span>{data.price}</span>
             </Card.Meta>
 
             <Card.Description>{data.description}</Card.Description>

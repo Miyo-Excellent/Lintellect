@@ -1,17 +1,19 @@
 //  Dependencies
 import React, {Component} from 'react';
 import _ from 'lodash';
+import {connect} from 'react-redux';
 
 //  API
 import {onDeleteProduct, onEditProduct} from './api';
 
+//  Actions
+import {fetchProducts} from './actions';
+
 //  common components
-import {Product} from '../common-components';
+import {Product} from '../index';
 
 //  Styles
 import styles from './products.scss';
-import {fetchProducts} from "./actions";
-import {connect} from "react-redux";
 
 class Products extends Component {
   static onclickProduct({id, type = '', dataUpdated = {}}) {
@@ -34,7 +36,6 @@ class Products extends Component {
   componentWillMount() {
     this.props.updateProducts();
   }
-
 
   render() {
     const {products, updateProducts} = this.props;

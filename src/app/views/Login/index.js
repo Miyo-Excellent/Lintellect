@@ -1,8 +1,11 @@
 // Dependencies
 import React, {Component} from 'react';
 import axios from 'axios';
-import {Link, Redirect} from 'react-router-dom';
+import {Redirect} from 'react-router-dom';
 import {Container, Button, Form} from 'semantic-ui-react';
+
+//  Components
+import {Google} from './components';
 
 // Styles
 import styles from './login.scss';
@@ -55,7 +58,7 @@ class Login extends Component {
   }
 
   render() {
-    const {acceptTerms, isFetching, email, path, password, redirect} = this.state;
+    const {acceptTerms, email, path, password, redirect} = this.state;
     const {history} = this.props;
 
     if (redirect) {
@@ -93,13 +96,19 @@ class Login extends Component {
             />
 
             <div className={styles.submit}>
-              <Button
-                color={!!email && !!password && !!acceptTerms ? 'green' : 'red'}
-                className={styles['submit-btn']}
-                onClick={this.onLogin}
-              >
+              <Button.Group>
+                <Button
+                  color={!!email && !!password && !!acceptTerms ? 'green' : 'grey'}
+                  className={styles['submit-btn']}
+                  onClick={this.onLogin}
+                >
                 Sing In
-              </Button>
+                </Button>
+
+                <Button.Or />
+
+                <Google {...this.props}/>
+              </Button.Group>
             </div>
           </Form>
         </div>

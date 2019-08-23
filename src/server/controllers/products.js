@@ -1,10 +1,16 @@
+//  Dependencies
+import fs from 'fs';
+import multiparty from 'multiparty';
+
+//  Services
+import {firebase} from '../services';
 //  Models
 import {Product} from '../models';
 
 export async function getProducts(req, res) {
   console.log('GET: /api/products');
 
-  Product.find(function (error, products) {
+  await Product.find(function (error, products) {
     if (error) {
       return res.status(500).send({message: `Error al solicitar producto en la base de datos ${error}`});
     }
@@ -22,7 +28,7 @@ export async function getProduct(req, res) {
 
   console.log('GET: /api/product');
 
-  Product.findById(productId, function (error, product) {
+  await Product.findById(productId, function (error, product) {
     if (error) {
       return res.status(500).send({message: `Error al solicitar producto en la base de datos ${error}`});
     }
@@ -39,7 +45,7 @@ export async function updateProducts(req, res) {
   const productId = req.params.productId || req.body.productId || req.query.productId;
   const update = req.body || req.query;
 
-  Product.findByIdAndUpdate(productId, update, function (error, productUpdated) {
+  await Product.findByIdAndUpdate(productId, update, function (error, productUpdated) {
     if (error) {
       return res.status(500).send({message: `Error al actualizar producto en la base de datos ${error}`});
     }
@@ -56,30 +62,56 @@ export async function updateProducts(req, res) {
 }
 
 export async function saveProduct(req, res) {
-  const {name, picture, price, category, description} = await req.query;
-
-  const product = new Product();
-
-  product.name = name;
-  product.picture = picture;
-  product.price = price;
-  product.category = category;
-  product.description = description;
+  const form = new multiparty.Form();
 
   console.log('POST: /api/product');
+  form.parse(req, function (err, {name, price, category, description}, files) {
+    const bucketNameExt = `${files.picture[0].headers['content-type']}`.split('/')[1];
+    const patName = 'images';
+    const bucketName = name[0].split(' ').join('_');
+    const bucketFullName = `${name[0].split(' ').join('_')}.${bucketNameExt}`;
 
+    const bucket = firebase.storage.bucket(patName);
+    debugger;
+    const file = bucket.file(bucketFullName);
+    const buffer = fs.createWriteStream();
+  debugger;
+    file.save(files.picture[0], error => {
+      debugger;
+      if (error) {
+        debugger;
+        console.log(error);
+      }
+    });
+    debugger;
 
-  product.save(function (error, productStored) {
-    if (error) {
-      return res.status(500).send({message: `Error al guardar producto en la base de datos ${error}`});
-    }
+    const product = new Product();
 
-    if (!productStored) {
-      return res.status(404).send({message: 'El producto no existe'});
-    }
+    debugger;
+    product.name = name[0];
+    product.picture = `https://storage.googleapis.com/${patName}/${bucketFullName}`;
+    product.price = price[0];
+    product.category = category[0];
+    product.description = description[0];
+    debugger;
 
-    res.status(200).send({product: productStored});
-  });
+    product.save(function (error, productStored) {
+      debugger;
+      if (error) {
+        debugger;
+        return res.status(500).send({message: `Error al guardar producto en la base de datos ${error}`});
+      }
+
+      debugger;
+      if (!productStored) {
+        debugger;
+        return res.status(404).send({message: 'El producto no existe'});
+      }
+
+      debugger;
+      res.status(200).send({product: productStored});
+    });
+  }).catch(error => console.log(error));
 }
 
 export async function deleteProducts(req, res) {
@@ -87,7 +119,7 @@ export async function deleteProducts(req, res) {
 
   console.log('GET: /api/product');
 
-  Product.findById(productId, function (error, product) {
+  await Product.findById(productId, function (error, product) {
     if (error) {
       return res.status(500).send({message: `Error al borrar el producto en la base de datos ${error}`});
     }

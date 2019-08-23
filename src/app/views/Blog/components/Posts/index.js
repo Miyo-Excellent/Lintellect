@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import timeAgo from 'node-time-ago';
 
 // Utils
-import { isFirstRender } from '../../../../shared/utils/data';
+import { isFirstRender } from '../../../../../shared/utils/data';
 
 // Styles
 import styles from './posts.scss';

@@ -37,9 +37,7 @@ export function fetchProducts(dispatch) {
 
 export function fetchUpdateProducts(dispatch, id, dataUpdated) {
   return onEditProduct({id, dataUpdated}).then(async data => {
-    const _data_ = data;
     console.log('Upadating Product: ', data);
-    debugger;
 
     await updateProducts(dispatch);
   }).catch(error => {

@@ -1,3 +1,4 @@
+//  Dependencies
 import axios from 'axios';
 
 const token = localStorage.getItem('TOKEN');
@@ -12,6 +13,20 @@ export async function getProducts() {
   })
     .then(({data}) => data.products)
     .catch(error => console.log(error));
+}
+
+export async function onCreateNewProduct(data) {
+  const _data_ = data;
+  debugger;
+  return await axios.post('http://localhost:3000/api/product', data, {
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Access-Control-Allow-Origin': '*',
+      authorization: token
+    }
+  })
+    .then((data) => data)
+    .catch(error => console.error(error));
 }
 
 export async function onDeleteProduct(id) {

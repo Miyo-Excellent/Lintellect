@@ -1,9 +1,9 @@
 // Dependencies
 import React, {Component} from 'react';
-import {Layout} from '../common-components';
+import {Layout} from '../../common-components';
 import {Container} from 'semantic-ui-react';
 
-class About extends Component {
+export default class About extends Component {
   render() {
     return (
       <Layout {...this.props}>
@@ -14,5 +14,3 @@ class About extends Component {
     );
   }
 }
-
-export default About;

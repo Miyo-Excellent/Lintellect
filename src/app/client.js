@@ -4,12 +4,19 @@ import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { Provider } from 'react-redux';
+import firebase from 'firebase';
+
+//  Configurations
+import * as config from './config';
 
 // Redux Store
 import configureStore from '../shared/configureStore';
 
 // Containers
 import App from './App';
+
+//  Firebase Initialization
+firebase.initializeApp(config.firebase);
 
 // Configuring Redux Store
 const store = configureStore(window.initialState);

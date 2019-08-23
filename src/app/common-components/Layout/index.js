@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import { Redirect } from 'react-router';
 import {Container} from 'semantic-ui-react';
 
-//  Common Compenents
+//  Common Components
 import {Bar} from '../';
 
 //  Styles
@@ -28,7 +28,7 @@ export default class Layout extends Component {
   }
 
   render() {
-    const {children,history,location} = this.props;
+    const {children,history} = this.props;
     const {path, redirect} = this.state;
 
     if (redirect) {
@@ -41,7 +41,7 @@ export default class Layout extends Component {
 
     return (
       <Container className={styles.layout}>
-        <Bar pathname={location.pathname} {...this.props} />
+        <Bar pathname={this.props.location.pathname} {...this.props} />
 
         {children}
       </Container>

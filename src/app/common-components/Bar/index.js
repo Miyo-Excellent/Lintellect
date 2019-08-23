@@ -1,11 +1,12 @@
+//  Dependencies
 import React, {Component} from 'react';
 import {Input, Menu, Button} from 'semantic-ui-react';
 import {connect} from 'react-redux';
-import _ from 'lodash';
+import {Redirect} from 'react-router-dom';
+//  import _ from 'lodash';
 
 //  Styles
-import styles from './menu.scss';
-import {Redirect} from 'react-router-dom';
+import styles from './bar.scss';
 
 const mapStateToProps = ({}) => ({});
 
@@ -53,25 +54,30 @@ class Bar extends Component {
     return (
       <div>
         <Menu pointing>
-          <Menu.Item
-            name='Home'
-            active={activeItem === ''}
-            onClick={this.handleItemClick}
-          />
-          <Menu.Item
-            name='About'
-            active={activeItem === 'About'}
-            onClick={this.handleItemClick}
-          />
-          <Menu.Item
-            name='Blog'
-            active={activeItem === 'Blog'}
-            onClick={this.handleItemClick}
-          />
+          <Menu.Menu position='left'>
+            <Menu.Item
+              name='Home'
+              active={activeItem === ''}
+              onClick={this.handleItemClick}
+            />
+            <Menu.Item
+              name='About'
+              active={activeItem === 'About'}
+              onClick={this.handleItemClick}
+            />
+            <Menu.Item
+              name='Blog'
+              active={activeItem === 'Blog'}
+              onClick={this.handleItemClick}
+            />
+          </Menu.Menu>
+
           <Menu.Menu position='right'>
-            <Menu.Item>
-              <Input icon='search' placeholder='Search...'/>
-            </Menu.Item>
+            {false && (
+              <Menu.Item>
+                <Input icon='search' placeholder='Search...'/>
+              </Menu.Item>
+            )}
 
             <Menu.Item>
               <Button icon='user close' content='Sing Out' onClick={this.onSingOut}/>

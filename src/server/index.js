@@ -7,11 +7,11 @@ import webpack from 'webpack';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import graphqlHTTP from 'express-graphql';
-
-const {ApolloServer} = require('apollo-server-express');
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackHotServerMiddleware from 'webpack-hot-server-middleware';
+import {ApolloServer} from 'apollo-server-express';
+import firebase from 'firebase-admin';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*****************************************Middlewares**********************************************/
@@ -39,8 +39,10 @@ import api from './api';
 
 /****************************************Controllers**********************************************/
 import {deleteProducts, getProduct, getProducts, saveProduct, updateProducts} from './controllers/products';
-import {signIn} from './controllers/user';
-import {signUp} from './controllers/user';
+import {signIn, signInWithGoogle, signUp} from './controllers/user';
+
+/******************************************Firebase************************************************/
+firebase.initializeApp(serverConfig.firebase);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*****************************************Environment*********************************************/
@@ -60,6 +62,8 @@ const compiler = webpack(webpackConfig);
 const port = process.env.NODE_PORT || 3000;
 
 const apolloServer = new ApolloServer({typeDefs, resolvers});
+
+
 
 apolloServer.applyMiddleware({app});
 
@@ -107,6 +111,7 @@ app.use('/graphql', graphqlHTTP(serverConfig.graphqlOptions));
 
 //  Users
 app.post('/signin', signIn);
+app.post('/signin-with-google', signInWithGoogle);
 app.post('/signup', signUp);
 
 //  Products

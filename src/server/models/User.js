@@ -10,7 +10,7 @@ const UserSchema = Schema({
   avatar: String,
   password: {type: String, select: false},
   singUpDate: {type: Date, default: Date.now()},
-  lastlogin: Date
+  lastLogin: Date
 });
 
 UserSchema.pre('save', function (next) {

@@ -2,8 +2,9 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Container} from 'semantic-ui-react';
-import Products from '../Products';
-import {Layout, Tabs} from '../common-components';
+import Products from '../../common-components/Products';
+import AddProduct from '../../common-components/AddProduct';
+import {Layout, Tabs} from '../../common-components';
 
 //  Actions
 
@@ -17,7 +18,7 @@ class Home extends Component {
         return <Products />;
 
       case 'newProduct':
-        return null;
+        return <AddProduct />;
 
       default:
         return null;

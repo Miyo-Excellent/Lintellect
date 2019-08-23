@@ -4,6 +4,7 @@ import mongoose, {Schema} from 'mongoose';
 //  Schema
 const ProductSchema = Schema({
   name: String,
+  description: String,
   picture: String,
   price: Number,
   category: {

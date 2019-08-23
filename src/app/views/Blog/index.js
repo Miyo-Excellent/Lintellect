@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import {Container} from 'semantic-ui-react';
 
 // Common Components
-import {Layout} from '../common-components';
+import {Layout} from '../../common-components';
 
 // Components
 import Posts from './components/Posts';
@@ -13,7 +13,13 @@ import Posts from './components/Posts';
 import {fetchPosts} from './actions';
 
 // Utils
-import {isFirstRender} from '../../shared/utils/data';
+import {isFirstRender} from '../../../shared/utils/data';
+
+const mapStateToProps = ({blog}) => ({
+  posts: blog.posts
+});
+
+const mapDispatchToProps = dispatch => ({});
 
 class Blog extends Component {
   static initialAction(fetchFrom) {
@@ -39,6 +45,4 @@ class Blog extends Component {
   }
 }
 
-export default connect(({blog}) => ({
-  posts: blog.posts
-}), null)(Blog);
+export default connect(mapStateToProps, mapDispatchToProps)(Blog);

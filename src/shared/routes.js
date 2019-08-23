@@ -1,9 +1,8 @@
 // Containers
-import Home from '../app/Home';
-import Login from '../app/Login';
-import About from '../app/About';
-import Blog from '../app/Blog/';
-
+import Home from '../app/views/Home';
+import Login from '../app/views/Login';
+import About from '../app/views/About';
+import Blog from '../app/views/Blog/';
 
 const routes = [
   {
