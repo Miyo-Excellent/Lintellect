@@ -8,6 +8,7 @@
     "clean": "rimraf dist/ && rimraf public/app",
     "lint": "eslint src",
     "postmerge": "npm install",
+    "postinstall": "npm run build && npm run start",
     "postrewrite": "npm install",
     "precommit": "npm run lint",
     "prepush": "npm run test",
