@@ -5,7 +5,10 @@ import mongoose, {Schema} from 'mongoose';
 const ProductSchema = Schema({
   name: String,
   description: String,
-  picture: String,
+  picture: {
+    ids: {type: String, unique: true},
+    url: {type: String, unique: true}
+  },
   price: Number,
   category: {
     type: String,

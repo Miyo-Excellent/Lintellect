@@ -3,6 +3,7 @@
 import express from 'express';
 import open from 'open';
 import path from 'path';
+import morgan from 'morgan';
 import webpack from 'webpack';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
@@ -13,6 +14,7 @@ import webpackHotServerMiddleware from 'webpack-hot-server-middleware';
 import {ApolloServer} from 'apollo-server-express';
 import firebase from 'firebase-admin';
 import cloudinary from 'cloudinary';
+import logger from './logger';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*****************************************Middlewares**********************************************/
@@ -65,9 +67,8 @@ const compiler = webpack(webpackConfig);
 /********************************************Port************************************************/
 const port = process.env.NODE_PORT || 3000;
 
+/***************************************Apollo Server*******************************************/
 const apolloServer = new ApolloServer({typeDefs, resolvers});
-
-
 
 apolloServer.applyMiddleware({app});
 
@@ -86,15 +87,15 @@ if (!isDevelopment) {
 /****************************************Public static********************************************/
 app.use(express.static(path.join(__dirname, '../../public')));
 
-/***************************************API Middleware*******************************************/
-app.use('/api', api);
-
 /*****************************************Body Parser********************************************/
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: false}));
 
 /***********************************parse application/json***************************************/
 app.use(bodyParser.json());
+
+/****************************************Morgan Logger********************************************/
+app.use(morgan('combined'));
 
 /**************************************Device Detection******************************************/
 app.use((req, res, next) => {
@@ -104,11 +105,18 @@ app.use((req, res, next) => {
   return next();
 });
 
+/***************************************API Middleware*******************************************/
+app.use('/api', api);
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /****************************************HTTP Methods********************************************/
 
-//  Test
-//  app.use('/', isAuth);
+//  Initial
+app.use('/', (req, res, next) => {
+  //  logger.info(`IN APP [IP: ${req.ip}] Han ingresado al sitio WEB`);
+  //  console.info(`IN APP [IP: ${req.ip}] Han ingresado al sitio WEB`);
+  return next();
+});
 
 //  Graphql
 app.use('/graphql', graphqlHTTP(serverConfig.graphqlOptions));
@@ -153,37 +161,49 @@ app.use(webpackHotServerMiddleware(compiler));
 /************************************Data Base Connection****************************************/
 mongoose.connect(serverConfig.db, err => {
   if (err) {
-    console.log(`Error al conectar a la base de datos ${err}`);
+    logger.info(`Error al conectar a la base de datos ${err}`);
+    console.info(`Error al conectar a la base de datos ${err}`);
   } else {
-    console.log('Conexión a la Base de Datos establecida');
+    logger.info('Conexión a la Base de Datos establecida');
+    console.info('Conexión a la Base de Datos establecida');
   }
 
   // Listening
   app.listen(port, err => {
     if (!err && !isAnalyzer) {
-      console.log(`
+      const messages = {
+        app: `
         ============================================================================================================================
         |·─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─·─··─··─·|
         |·· Aplicación corriendo en: ==>  http://localhost:${port}  <== Abrir enlace con (Ctrl + Clic) en Windows, Linux, MAC ·|
         |·─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─·─··─··─·|
         ============================================================================================================================
-      `);
-
-      console.log(`
+      `,
+        graphql: `
         ============================================================================================================================
         |·─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─·─··─··─·|
         |· GraphQL Server corriendo en: ==>  http://localhost:${port}/graphql  <== Abrir enlace con (Ctrl + Clic) en Windows, Linux, MAC ·|
         |·─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─·─··─··─·|
         ============================================================================================================================
-      `);
-
-      console.log(`
+      `,
+        apollo: `
         ============================================================================================================================
         |·─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─·─··─··─·|
         |· Apollo Server corriendo en: ==>   http://localhost:${port}/apollo${apolloServer.graphqlPath}  <== Abrir enlace con (Ctrl + Clic) en Windows, Linux, MAC ·|
         |·─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─··─·─··─··─·|
         ============================================================================================================================
-        `);
+        `
+      };
+
+
+      logger.info(messages.app);
+      console.info(messages.app);
+
+      logger.info(messages.graphql);
+      console.info(messages.graphql);
+
+      logger.info(messages.apollo);
+      console.info(messages.apollo);
 
       if (isOpenBrowser) {
         open(`http://localhost:${port}`);

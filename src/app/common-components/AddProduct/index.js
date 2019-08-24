@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 //  import _ from 'lodash';
 
 //  API
-import {onCreateNewProduct} from "../Products/api";
+import {onCreateNewProduct} from '../Products/api';
 
 //  Styles
 import styles from './addProduct.scss';
@@ -57,8 +57,6 @@ class AddProduct extends Component {
     formData.append('picture', picture);
     formData.append('description', description);
     formData.append('category', category);
-
-  debugger;
 
     await onCreateNewProduct(formData);
   }

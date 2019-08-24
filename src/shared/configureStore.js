@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 
 // Root Reducer
 import rootReducer from './reducers';
+import {isDevelopment} from './utils/environment';
 
 const composeEnhancers =
   typeof window === 'object' &&
@@ -13,9 +14,11 @@ const composeEnhancers =
     }) : compose;
 
 export default function configureStore(initialState) {
-  const middleware = [
-    thunk
-  ];
+  const middleware = [];
+
+  if (isDevelopment()) {
+    middleware.push(thunk);
+  }
 
   return createStore(
     rootReducer,

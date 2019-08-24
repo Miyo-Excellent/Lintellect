@@ -3,6 +3,7 @@ import fs from 'fs';
 import multiparty from 'multiparty';
 import cloudinary from 'cloudinary';
 import _ from 'lodash';
+import logger from '../logger';
 
 //  Services
 
@@ -11,90 +12,193 @@ import {Product} from '../models';
 
 async function cloudinaryUploadFile({filepath, options = {}}) {
   function callback(result) {
+    logger.info(`Imagen alamacenada en Cloudinary ${result.url}`);
+    console.info(`Imagen alamacenada en Cloudinary ${result.url}`);
+
     resolve({url: result.url, id: result.public_id});
   }
 
   return cloudinary.uploader.upload(filepath, options, callback, {resource_type: 'auto'});
 }
 
+async function cloudinaryDeleteFile({ids, options = {}}) {
+  function callback(result) {
+    logger.info(`Se ha elimiando la imagen alamacenada en Cloudinary [IDS: ${ids}]`);
+    console.info(`Se ha elimiando la imagen alamacenada en Cloudinary [IDS: ${ids}]`);
+  }
+
+  return cloudinary.v2.api.delete_resources(ids, options, callback);
+}
+
 export async function getProducts(req, res) {
-  console.log('GET: /api/products');
+  logger.info(`GET:[ip:${req.ip}] /api/products`);
+  console.info(`GET:[ip:${req.ip}] /api/products`);
 
   await Product.find(function (error, products) {
     if (error) {
+      logger.error(`GET:[ip:${req.ip}] Error al solicitar producto en la base de datos ${error}`);
+      console.error(`GET:[ip:${req.ip}] Error al solicitar producto en la base de datos ${error}`);
+
       return res.status(500).send({message: `Error al solicitar producto en la base de datos ${error}`});
     }
 
     if (!products) {
+      logger.error(`GET:[ip:${req.ip}] El producto no existe`);
+      console.error(`GET:[ip:${req.ip}] El producto no existe`);
+
       return res.status(404).send({message: 'El producto no existe'});
     }
 
-    res.status(200).send({products});
+    logger.info(`GET:[ip:${req.ip}] Han solicitado todos los productos`);
+    console.info(`GET:[ip:${req.ip}] Han solicitado todos los productos`);
+
+    return res.status(200).send({products});
   });
 }
 
 export async function getProduct(req, res) {
-  const productId = req.params.productId || req.body.productId || req.query.productId;
+  logger.info(`GET:[ip:${req.ip}] /api/product`);
+  console.info(`GET:[ip:${req.ip}] /api/product`);
 
-  console.log('GET: /api/product');
+  const productId = req.params.productId || req.body.productId || req.query.productId;
 
   await Product.findById(productId, function (error, product) {
     if (error) {
+      logger.error(`GET:[ip:${req.ip}] Error al solicitar producto en la base de datos ${error}`);
+      console.error(`GET:[ip:${req.ip}] Error al solicitar producto en la base de datos ${error}`);
+
       return res.status(500).send({message: `Error al solicitar producto en la base de datos ${error}`});
     }
 
     if (!product) {
+      logger.error(`GET:[ip:${req.ip}] El producto [ID: ${productId}] no existe`);
+      console.error(`GET:[ip:${req.ip}] El producto [ID: ${productId}] no existe`);
+
       return res.status(404).send({message: 'El producto no existe'});
     }
+
+    logger.info(`GET:[ip:${req.ip}] Han solicitado el producto [ID: ${productId}]`);
+    console.info(`GET:[ip:${req.ip}] Han solicitado el producto [ID: ${productId}]`);
 
     return res.status(200).send({product});
   });
 }
 
 export async function updateProducts(req, res) {
-  const productId = req.params.productId || req.body.productId || req.query.productId;
-  const update = req.body || req.query;
+  logger.info(`PUT:[ip:${req.ip}] /api/product`);
+  console.info(`PUT:[ip:${req.ip}] /api/product`);
 
-  await Product.findByIdAndUpdate(productId, update, function (error, productUpdated) {
+  const productId = req.params.productId || req.body.productId || req.query.productId;
+  const form = new multiparty.Form();
+
+  function success(error, productUpdated) {
     if (error) {
+      logger.error(`PUT:[ip:${req.ip}] Error al actualizar el producto [ID: ${productId}]`);
+      console.error(`PUT:[ip:${req.ip}] Error al actualizar el producto [ID: ${productId}]`);
+
       return res.status(500).send({message: `Error al actualizar producto en la base de datos ${error}`});
     }
 
     if (!productUpdated) {
+      logger.error(`PUT:[ip:${req.ip}] El producto [ID: ${productId}] no existe`);
+      console.error(`PUT:[ip:${req.ip}] El producto [ID: ${productId}] no existe`);
+
       return res.status(404).send({message: 'El producto no existe'});
     }
+
+    logger.info(`PUT:[ip:${req.ip}] Han solicitado el producto [ID: ${productId}]`);
+    console.info(`PUT:[ip:${req.ip}] Han solicitado el producto [ID: ${productId}]`);
 
     res.status(200).send({
       message: 'El producto se actualizo',
       product: productUpdated
     });
+  }
+
+  form.parse(req, async function (err, {name, price, category, description, ids}, files) {
+    const uniqueFilename = new Date().toISOString();
+    const patName = 'products';
+    const bucketName = files.picture[0].originalFilename;
+    const productUpdated = {};
+
+    if (name) {
+      productUpdated.name = name[0];
+    }
+
+    if (price) {
+      productUpdated.name = price[0];
+    }
+
+    if (category) {
+      productUpdated.name = category[0];
+    }
+
+    if (description) {
+      productUpdated.name = description[0];
+    }
+
+    if (!_.isEmpty(files.picture)) {
+      const filepath = files.picture[0].path;
+
+      cloudinaryUploadFile({
+        filepath,
+        options: {
+          folder: patName,
+          public_id: `${patName}/${bucketName}__${uniqueFilename}`,
+          tags: patName
+        }
+      }).then(async function ({public_id, url}) {
+        productUpdated.picture = {ids: public_id, url};
+
+        await Product.findByIdAndUpdate(productId, productUpdated, function (error, productUpdated) {
+
+          cloudinaryDeleteFile({ids, options: {
+            folder: patName,
+            public_id: `${patName}/${bucketName}__${uniqueFilename}`,
+            tags: patName
+          }});
+
+          success(error, productUpdated);
+        });
+      }).catch();
+    } else {
+      await Product.findByIdAndUpdate(productId, productUpdated, success);
+    }
   });
 }
 
 export async function saveProduct(req, res) {
+  logger.info(`GET:[ip:${req.ip}] /api/product`);
+  console.info(`GET:[ip:${req.ip}] /api/product`);
+
   const form = new multiparty.Form();
+
   const storingProduct = (filepath, {name, picture, price, category, description}) => {
     const product = new Product({name, picture, price, category, description});
 
-
-    debugger;
-
     product.save(function (error, productStored) {
       if (error) {
+        logger.error(`GET:[IP: ${req.ip}] Error al guardar producto en la base de datos ${error}`);
+        console.error(`GET:[IP: ${req.ip}] Error al guardar producto en la base de datos ${error}`);
+
         return res.status(500).send({message: `Error al guardar producto en la base de datos ${error}`});
       }
 
       if (!productStored) {
+        logger.error(`GET:[IP: ${req.ip}] El producto no existe ${error}`);
+        console.error(`GET:[IP: ${req.ip}] El producto no existe ${error}`);
+
         return res.status(404).send({message: 'El producto no existe'});
       }
 
       fs.unlinkSync(filepath);
 
-      return res.status(200).json({message: 'el Producto se almaceno correctamente', product: productStored});
+      logger.info(`GET:[IP: ${req.ip}] El producto se almaceno correctamente ${productStored}`);
+      console.info(`GET:[IP: ${req.ip}] El producto se almaceno correctamente ${productStored}`);
+
+      return res.status(200).json({message: 'El producto se almaceno correctamente', product: productStored});
     });
   };
-
-  console.log('POST: /api/product');
 
   form.parse(req, async function (err, {name, price, category, description}, files) {
     const uniqueFilename = new Date().toISOString();
@@ -108,20 +212,20 @@ export async function saveProduct(req, res) {
         options: {
           folder: patName,
           public_id: `${patName}/${bucketName}__${uniqueFilename}`,
-          tags: patName,
-          eager: [
-            { width: 400, height: 300, crop: "pad" },
-            { width: 260, height: 200, crop: "crop", gravity: "north"} ]
+          tags: patName
         }
       })
       //  .uploads(filepath)
-        .then(async function ({url}) {
+        .then(async function ({public_id, url}) {
           return storingProduct(filepath, {
-            name: name[0],
-            picture: url,
-            price: price[0],
-            category: category[0],
-            description: description[0]
+            name: name ? name[0] : '',
+            picture: {
+              ids: public_id ? public_id : '',
+              url: url ? url : ''
+            },
+            price: price ? price[0] : '',
+            category: category ? category[0] : '',
+            description: description ? description[0] : ''
           });
         });
     } else {
@@ -135,23 +239,36 @@ export async function saveProduct(req, res) {
 }
 
 export async function deleteProducts(req, res) {
-  const {productId} = await req.params;
+  logger.info(`GET:[ip:${req.ip}] /api/product`);
+  console.info(`GET:[ip:${req.ip}] /api/product`);
 
-  console.log('GET: /api/product');
+  const {productId} = await req.params;
 
   await Product.findById(productId, function (error, product) {
     if (error) {
+      logger.error(`DELETE:[IP: ${req.ip}] Error al borrar el producto [ID: ${productId}] ${error}`);
+      console.error(`DELETE:[IP: ${req.ip}] Error al borrar el producto [ID: ${productId}] ${error}`);
+
       return res.status(500).send({message: `Error al borrar el producto en la base de datos ${error}`});
     }
 
     if (!product) {
+      logger.error(`DELETE:[IP: ${req.ip}] El producto [ID: ${productId}] no existe ${error}`);
+      console.error(`DELETE:[IP: ${req.ip}] El producto [ID: ${productId}] no existe ${error}`);
+
       return res.status(404).send({message: 'El producto no existe'});
     }
 
     product.remove(error => {
       if (error) {
+        logger.error(`DELETE:[IP: ${req.ip}] Error al guardar el producto [ID: ${productId}] en la base de datos ${error}`);
+        console.error(`DELETE:[IP: ${req.ip}] Error al guardar el producto [ID: ${productId}] en la base de datos ${error}`);
+
         return res.status(500).send({message: `Error al guardar producto en la base de datos ${error}`});
       }
+
+      logger.error(`DELETE:[IP: ${req.ip}] El producto ha sido [ID: ${productId}] eliminado`);
+      console.error(`DELETE:[IP: ${req.ip}] El producto ha sido [ID: ${productId}] eliminado`);
 
       res.status(200).send({message: 'El producto ha sido eliminado', product});
     });

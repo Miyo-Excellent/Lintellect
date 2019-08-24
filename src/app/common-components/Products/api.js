@@ -16,8 +16,6 @@ export async function getProducts() {
 }
 
 export async function onCreateNewProduct(data) {
-  const _data_ = data;
-  debugger;
   return await axios.post('http://localhost:3000/api/product', data, {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8',

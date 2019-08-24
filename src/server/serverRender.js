@@ -3,6 +3,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { matchPath } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import logger from './logger';
 
 // Redux Store
 import configureStore from '../shared/configureStore';
@@ -45,6 +46,12 @@ export default function serverRender() {
         );
 
         if (context.url) {
+          logger.warn(`APP [IP: ${req.ip}] Server Render :: Redireccionando a ${context.url}`);
+          console.warn(`APP [IP: ${req.ip}] Server Render :: Redireccionando a ${context.url}`);
+
+          logger.info(`APP [IP: ${req.ip}] Server Render :: Redireccionando a ${context.url}`);
+          console.info(`APP [IP: ${req.ip}] Server Render :: Redireccionando a ${context.url}`);
+
           res.redirect(301, context.url);
         } else {
           res.send(html({
@@ -53,8 +60,9 @@ export default function serverRender() {
           }));
         }
       })
-      .catch(e => {
-        console.log('Promise error: ', e); // eslint-disable-line
+      .catch(error => {
+        logger.error(`APP [IP: ${req.ip}] Server Render :: Promise error: ${error}`);
+        console.error(`APP [IP: ${req.ip}] Server Render :: Promise error: ${error}`);
       });
   };
 }

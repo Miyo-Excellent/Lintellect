@@ -9,6 +9,15 @@ import {fetchDeleteProducts, fetchUpdateProducts} from '../Products/actions';
 //  Styles
 import styles from './product.scss';
 
+const mapStateToProps = state => ({
+  products: state.products.products
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateProduct: ({id, dataUpdated}) => fetchUpdateProducts(dispatch, id, dataUpdated),
+  deleteProduct: id => fetchDeleteProducts(dispatch, id)
+});
+
 class Product extends Component {
   constructor(props) {
     super(props);
@@ -24,7 +33,10 @@ class Product extends Component {
         category: '',
         description: '',
         name: '',
-        picture: '',
+        picture: {
+          url: '',
+          ids: ''
+        },
         price: ''
       }
     };
@@ -33,19 +45,19 @@ class Product extends Component {
   }
 
   componentWillMount() {
-    const {category = '', description = '', name = '', picture = '', price = ''} = this.props.data;
+    const {category = '', description = '', name = '', picture = {}, price = ''} = this.props.data;
 
-    this.setState(state => ({
-      ...state,
-      dataUpdated: {
-        ...state.dataUpdated,
-        category,
-        description,
-        name,
-        picture,
-        price
-      }
-    }));
+    //  this.setState(state => ({
+    //    ...state,
+    //    dataUpdated: {
+    //      ...state.dataUpdated,
+    //      category,
+    //      description,
+    //      name,
+    //      picture,
+    //      price
+    //    }
+    //  }));
   }
 
   handleChangeDataUpdated({key = '', value}) {
@@ -61,10 +73,11 @@ class Product extends Component {
   render() {
     const {data, deleteProduct, updateProduct} = this.props;
     const {editing, dataUpdated, categories} = this.state;
+    const {category, description, name, picture, price} = dataUpdated;
 
     return (
       <Card>
-        {!editing && <Image src={data.picture} alt={data.name} wrapped ui={false}/>}
+        {!editing && <Image src={data.picture.url} alt={data.name} wrapped ui={false}/>}
 
         {editing && (
           <Card.Content>
@@ -110,7 +123,7 @@ class Product extends Component {
                 options={categories}
                 placeholder='Categorias'
                 onChange={(_event_, {value}) => {
-                  this.handleChangeDataUpdated({key: 'price', value});
+                  this.handleChangeDataUpdated({key: 'category', value});
                 }}
               />
 
@@ -124,7 +137,30 @@ class Product extends Component {
                         Promise
                           .resolve()
                           .then(() => {
-                            updateProduct({id: data._id, dataUpdated});
+                            const formData = new FormData();
+
+                            if (name) {
+                              formData.append('name', name);
+                            }
+
+                            if (category) {
+                              formData.append('category', category);
+                            }
+
+                            if (description) {
+                              formData.append('description', description);
+                            }
+
+                            if (picture) {
+                              formData.append('ids', data.picture.ids);
+                              formData.append('picture', picture);
+                            }
+
+                            if (price) {
+                              formData.append('price', price);
+                            }
+
+                            updateProduct({id: data._id, dataUpdated: formData});
                           })
                           .then(() => this.setState({editing: false}))
                           .catch(error => console.log(error));
@@ -181,14 +217,5 @@ class Product extends Component {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  products: state.products.products
-});
-
-const mapDispatchToProps = dispatch => ({
-  updateProduct: ({id, dataUpdated}) => fetchUpdateProducts(dispatch, id, dataUpdated),
-  deleteProduct: id => fetchDeleteProducts(dispatch, id)
-});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Product);
