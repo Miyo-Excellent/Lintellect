@@ -3,6 +3,7 @@ import Home from '../app/views/Home';
 import Login from '../app/views/Login';
 import About from '../app/views/About';
 import Blog from '../app/views/Blog/';
+import Register from '../app/views/Register/';
 
 const routes = [
   {
@@ -21,6 +22,10 @@ const routes = [
   {
     path: '/Blog',
     component: Blog
+  },
+  {
+    path: '/register',
+    component: Register
   }
 ];
 

@@ -37,11 +37,7 @@ export default function serverRender() {
 
         const markup = renderToString(
           <Provider store={store}>
-            <App
-              server
-              location={req.url}
-              context={context}
-            />
+            <App server location={req.url} context={context} />
           </Provider>
         );
 
@@ -54,10 +50,7 @@ export default function serverRender() {
 
           res.redirect(301, context.url);
         } else {
-          res.send(html({
-            markup,
-            initialState
-          }));
+          res.send(html({ markup, initialState }));
         }
       })
       .catch(error => {

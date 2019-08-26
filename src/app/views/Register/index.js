@@ -5,39 +5,40 @@ import {Redirect, Link} from 'react-router-dom';
 import {Container, Button, Form} from 'semantic-ui-react';
 
 //  Components
-import {Google} from './components';
 
 // Styles
 import styles from './login.scss';
 
-class Login extends Component {
+export default class Register extends Component {
   static token = localStorage.getItem('TOKEN');
 
   constructor(props) {
     super(props);
 
     this.state = {
+      name: '',
       email: '',
       password: '',
+      acceptTerms: false,
       isFetching: false,
       redirect: false,
       path: ''
     };
 
     this.onChangeState = this.onChangeState.bind(this);
-    this.onLogin = this.onLogin.bind(this);
+    this.onSignUp = this.onSignUp.bind(this);
   }
 
   componentWillMount() {
-    if (Login.token) {
+    if (Register.token) {
       this.setState({redirect: true, path: ''});
     }
   }
 
-  onLogin() {
-    const {email, password} = this.state;
+  onSignUp() {
+    const {email, password, name} = this.state;
 
-    axios.post('http://localhost:3000/signin', {email, password})
+    axios.post('http://localhost:3000/signup', {email, password, name})
       .then(({data}) => {
         localStorage.setItem('TOKEN', `Bearer ${data.token}`);
 
@@ -49,7 +50,13 @@ class Login extends Component {
         }));
 
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error.response.data.message);
+
+        if (/duplicate/i.test(error.response.data.message)) {
+          alert('El usuario ya existe, debe utilizar otro "Email"');
+        }
+      });
   }
 
   onChangeState({key = '', value = ''}) {
@@ -57,10 +64,10 @@ class Login extends Component {
   }
 
   render() {
-    const {email, path, password, redirect} = this.state;
+    const {acceptTerms, email, path, password, redirect} = this.state;
     const {history} = this.props;
 
-    const isValid = [email, password, password].every(element => !!element);
+    const isValid = [acceptTerms, email, password, password].every(element => !!element);
 
     if (redirect) {
       history.replace({pathname: path === '' ? '/' : `/${path}`});
@@ -77,6 +84,14 @@ class Login extends Component {
             <Form.Input
               required
               fluid
+              label='Name'
+              placeholder='Name'
+              onChange={(_event_, {value}) => this.onChangeState({key: 'name', value})}
+            />
+
+            <Form.Input
+              required
+              fluid
               label='Email'
               placeholder='Email'
               onChange={(_event_, {value}) => this.onChangeState({key: 'email', value})}
@@ -90,23 +105,33 @@ class Login extends Component {
               onChange={(_event_, {value}) => this.onChangeState({key: 'password', value})}
             />
 
-            <div className={styles.center}>
-              <Link to="/Register" className={styles['register-link']}>Rigistro</Link>
-            </div>
+            <Form.Checkbox
+              required
+              checked={acceptTerms}
+              label='I agree to the Terms and Conditions'
+              error={!acceptTerms}
+              onChange={(_event_, data) => this.onChangeState({key: 'acceptTerms', value: !acceptTerms})}
+            />
 
             <div className={styles.submit}>
               <Button.Group>
                 <Button
-                  color={isValid ? 'green' : 'grey'}
+                  color="linkedin"
                   className={styles['submit-btn']}
-                  onClick={this.onLogin}
+                  onClick={() => this.setState({path: 'login', redirect: true})}
                 >
                 Sing In
                 </Button>
 
                 <Button.Or />
 
-                <Google {...this.props}/>
+                <Button
+                  color={isValid ? 'green' : 'red'}
+                  className={styles['submit-btn']}
+                  onClick={this.onSignUp}
+                >
+                  Sing up
+                </Button>
               </Button.Group>
             </div>
           </Form>
@@ -115,5 +140,3 @@ class Login extends Component {
     );
   }
 }
-
-export default Login;

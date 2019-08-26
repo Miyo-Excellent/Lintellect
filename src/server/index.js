@@ -179,12 +179,14 @@ try {
   logger.error(error);
   console.log(error);
 }
+
 try {
   app.post('/signin-with-google', signInWithGoogle);
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
+
 try {
   app.post('/signup', signUp);
 } catch (error) {
