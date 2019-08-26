@@ -34,22 +34,36 @@ class Login extends Component {
     }
   }
 
-  onLogin() {
+  async onLogin() {
+    const formData = new FormData();
     const {email, password} = this.state;
 
-    axios.post('http://localhost:3000/signin', {email, password})
-      .then(({data}) => {
-        localStorage.setItem('TOKEN', `Bearer ${data.token}`);
+    if (email && password) {
+      formData.append('email', email);
+      formData.append('password', password);
 
-        this.setState(state => ({
-          ...state,
-          isFetching: false,
-          redirect: true,
-          path: ''
-        }));
+      await axios.post('http://localhost:3000/signin', formData)
+        .then(({data}) => {
+          localStorage.setItem('TOKEN', `Bearer ${data.token}`);
 
-      })
-      .catch(error => console.log(error));
+          this.setState(state => ({
+            ...state,
+            isFetching: false,
+            redirect: true,
+            path: ''
+          }));
+
+        })
+        .catch(error => console.log(error));
+    } else {
+      if (!email) {
+        alert('Inserte un email valido');
+      }
+
+      if (!password) {
+        alert('Inserte una contraseña valida');
+      }
+    }
   }
 
   onChangeState({key = '', value = ''}) {
@@ -64,7 +78,7 @@ class Login extends Component {
 
     if (redirect) {
       history.replace({pathname: path === '' ? '/' : `/${path}`});
-      location.reload();
+      //  location.reload();
       return (
         <Redirect to={`/${path}`}/>
       );

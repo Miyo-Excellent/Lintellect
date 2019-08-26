@@ -3,7 +3,9 @@ import fs from 'fs';
 import multiparty from 'multiparty';
 import cloudinary from 'cloudinary';
 import _ from 'lodash';
+
 import logger from '../logger';
+import validations from '../validations';
 
 //  Services
 
@@ -118,7 +120,6 @@ export async function updateProducts(req, res) {
   form.parse(req, async function (err, {name, price, category, description, ids}, files) {
     const uniqueFilename = new Date().toISOString();
     const patName = 'products';
-    const bucketName = files.picture[0].originalFilename;
     const productUpdated = {};
 
     if (name) {
@@ -137,7 +138,8 @@ export async function updateProducts(req, res) {
       productUpdated.name = description[0];
     }
 
-    if (!_.isEmpty(files.picture)) {
+    if (!_.isEmpty(files) && !_.isEmpty(files.picture)) {
+      const bucketName = files.picture[0].originalFilename;
       const filepath = files.picture[0].path;
 
       cloudinaryUploadFile({
@@ -167,44 +169,62 @@ export async function updateProducts(req, res) {
   });
 }
 
-export async function saveProduct(req, res) {
-  logger.info(`GET:[ip:${req.ip}] /api/product`);
-  console.info(`GET:[ip:${req.ip}] /api/product`);
+export async function saveProduct(req, res, next) {
+  logger.info(`POST:[ip:${req.ip}] /api/product`);
+  console.info(`POST:[ip:${req.ip}] /api/product`);
 
   const form = new multiparty.Form();
 
-  const storingProduct = (filepath, {name, picture, price, category, description}) => {
+  const storingProduct = (filepath, {name, picture, price, category, description = ''}) => {
     const product = new Product({name, picture, price, category, description});
 
     product.save(function (error, productStored) {
       if (error) {
-        logger.error(`GET:[IP: ${req.ip}] Error al guardar producto en la base de datos ${error}`);
-        console.error(`GET:[IP: ${req.ip}] Error al guardar producto en la base de datos ${error}`);
+        logger.error(`POST:[IP: ${req.ip}] Error al guardar producto en la base de datos ${error}`);
+        console.error(`POST:[IP: ${req.ip}] Error al guardar producto en la base de datos ${error}`);
 
         return res.status(500).send({message: `Error al guardar producto en la base de datos ${error}`});
       }
 
       if (!productStored) {
-        logger.error(`GET:[IP: ${req.ip}] El producto no existe ${error}`);
-        console.error(`GET:[IP: ${req.ip}] El producto no existe ${error}`);
+        logger.error(`POST:[IP: ${req.ip}] El producto no existe ${error}`);
+        console.error(`POST:[IP: ${req.ip}] El producto no existe ${error}`);
 
         return res.status(404).send({message: 'El producto no existe'});
       }
 
       fs.unlinkSync(filepath);
 
-      logger.info(`GET:[IP: ${req.ip}] El producto se almaceno correctamente ${productStored}`);
-      console.info(`GET:[IP: ${req.ip}] El producto se almaceno correctamente ${productStored}`);
+      logger.info(`POST:[IP: ${req.ip}] El producto se almaceno correctamente ${productStored}`);
+      console.info(`POST:[IP: ${req.ip}] El producto se almaceno correctamente ${productStored}`);
 
       return res.status(200).json({message: 'El producto se almaceno correctamente', product: productStored});
     });
   };
 
-  form.parse(req, async function (err, {name, price, category, description}, files) {
+  form.parse(req, async function (err, {name, price, category, description = ['test']}, files) {
     const uniqueFilename = new Date().toISOString();
     const patName = 'products';
     const bucketName = name[0].split(' ').join('_');
     const filepath = !_.isEmpty(files) ? files.picture[0].path : '';
+
+    const {error, value} = validations({
+      key: 'add_product',
+      options: {
+        name: name[0],
+        category: category[0],
+        description: description[0],
+        price: price[0]
+      }
+    });
+
+    if (error) {
+      logger.info(`ERROR :: POST:[ip:${req.ip}] /api/product ${error}`);
+      console.info(`ERROR :: POST:[ip:${req.ip}] /api/product`, error);
+
+      res.status(500).send({message: error});
+      return next();
+    }
 
     if (filepath) {
       cloudinaryUploadFile({
@@ -239,8 +259,8 @@ export async function saveProduct(req, res) {
 }
 
 export async function deleteProducts(req, res) {
-  logger.info(`GET:[ip:${req.ip}] /api/product`);
-  console.info(`GET:[ip:${req.ip}] /api/product`);
+  logger.info(`DELETE:[ip:${req.ip}] /api/product`);
+  console.info(`DELETE:[ip:${req.ip}] /api/product`);
 
   const {productId} = await req.params;
 

@@ -37,11 +37,16 @@ class Google extends Component {
       .auth()
       .signInWithPopup(await provider)
       .then(async ({credential, user}) => {
-        const {email, displayName} = user;
+        const formData = new FormData();
+        const {email, displayName, uid} = user;
+
+        formData.append('email', email);
+        formData.append('name', displayName);
+        formData.append('uid', uid);
 
         console.log('USER: ', user);
 
-        await axios.post('http://localhost:3000/signin-with-google', {email, name: displayName})
+        await axios.post('http://localhost:3000/signin-with-google', formData)
           .then(({data}) => {
             localStorage.setItem('TOKEN', `Bearer ${data.token}`);
             localStorage.setItem('FIREBASE_TOKEN', `Bearer ${credential.accessToken}`);

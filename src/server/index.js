@@ -174,21 +174,21 @@ try {
 
 //  Users
 try {
-  app.post('/signin', signIn);
+  app.post('/signin', async (req, res, next) => signIn(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.post('/signin-with-google', signInWithGoogle);
+  app.post('/signin-with-google', async (req, res, next) => signInWithGoogle(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.post('/signup', signUp);
+  app.post('/signup', async (req, res, next) => signUp(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
@@ -196,35 +196,35 @@ try {
 
 //  Products
 try {
-  app.get('/api/products', isAuth, getProducts);
+  app.get('/api/products', isAuth, async (req, res, next) => getProducts(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.get('/api/product/:productId', isAuth, getProduct);
+  app.get('/api/product/:productId', isAuth, async (req, res, next) => getProduct(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.post('/api/product', isAuth, saveProduct);
+  app.post('/api/product', isAuth, async (req, res, next) => saveProduct(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.put('/api/product/:productId', isAuth, updateProducts);
+  app.put('/api/product/:productId', isAuth, async (req, res, next) => updateProducts(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.delete('/api/product/:productId', isAuth, deleteProducts);
+  app.delete('/api/product/:productId', isAuth, async (req, res, next) => deleteProducts(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
@@ -283,7 +283,7 @@ try {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************Data Base Connection****************************************/
 try {
-  mongoose.connect(serverConfig.db, err => {
+  mongoose.connect(serverConfig.db, { useNewUrlParser: true }, err => {
     if (err) {
       logger.info(`Error al conectar a la base de datos ${err}`);
       console.info(`Error al conectar a la base de datos ${err}`);

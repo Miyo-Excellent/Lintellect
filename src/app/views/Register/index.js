@@ -36,27 +36,44 @@ export default class Register extends Component {
   }
 
   onSignUp() {
+    const formData = new FormData();
     const {email, password, name} = this.state;
 
-    axios.post('http://localhost:3000/signup', {email, password, name})
-      .then(({data}) => {
-        localStorage.setItem('TOKEN', `Bearer ${data.token}`);
+    if (email && password && name) {
+      formData.append('email', email);
+      formData.append('name', name);
+      formData.append('password', password);
 
-        this.setState(state => ({
-          ...state,
-          isFetching: false,
-          redirect: true,
-          path: ''
-        }));
+      axios.post('http://localhost:3000/signup', formData)
+        .then(({data}) => {
+          localStorage.setItem('TOKEN', `Bearer ${data.token}`);
 
-      })
-      .catch(error => {
-        console.log(error.response.data.message);
+          this.setState(state => ({
+            ...state,
+            isFetching: false,
+            redirect: true,
+            path: ''
+          }));
 
-        if (/duplicate/i.test(error.response.data.message)) {
-          alert('El usuario ya existe, debe utilizar otro "Email"');
-        }
-      });
+        })
+        .catch(error => {
+          console.log(error.response.data.message);
+
+          if (/duplicate/i.test(error.response.data.message)) {
+            alert('El usuario ya existe, debe utilizar otro "Email"');
+          }
+        });
+    } else {
+      if (!email) {
+        alert('Inserte un email valido');
+      }
+      if (!password) {
+        alert('Inserte una contraseña valida');
+      }
+      if (!name) {
+        alert('Inserte un nombre valido');
+      }
+    }
   }
 
   onChangeState({key = '', value = ''}) {
@@ -71,7 +88,7 @@ export default class Register extends Component {
 
     if (redirect) {
       history.replace({pathname: path === '' ? '/' : `/${path}`});
-      location.reload();
+      //  location.reload();
       return (
         <Redirect to={`/${path}`}/>
       );

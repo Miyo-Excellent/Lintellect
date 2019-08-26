@@ -23,6 +23,8 @@ class Product extends Component {
     super(props);
 
     this.state = {
+      titleExtended: false,
+      descriptionExtended: false,
       editing: false,
       categories: [
         {text: 'Computadoras', value: 'computers'},
@@ -72,16 +74,38 @@ class Product extends Component {
 
   render() {
     const {data, deleteProduct, updateProduct} = this.props;
-    const {editing, dataUpdated, categories} = this.state;
+    const {editing, dataUpdated, categories, titleExtended, descriptionExtended} = this.state;
     const {category, description, name, picture, price} = dataUpdated;
+
+    if (
+      _.isEmpty(data)
+      || _.isEmpty(data.picture)
+      || _.isEmpty(data.picture.url)
+      || _.isEmpty(data.name)
+    ) {
+      return null;
+    }
 
     return (
       <Card>
-        {!editing && <Image src={data.picture.url} alt={data.name} wrapped ui={false}/>}
+        {!editing && (
+          <div className={styles['card-image-container']}>
+            <Image className={styles['card-image']} src={data.picture.url} alt={data.name} ui/>
+          </div>
+        )}
 
         {editing && (
           <Card.Content>
-            <Card.Header>{`Editando Producto ${data.name}`}</Card.Header>
+            <Card.Header onClick={() => data.name.length > 30 ? this.setState({titleExtended: !titleExtended}) : null}>
+              <p>
+                {`Editando Producto ${(titleExtended || data.name.length <= 30) ? data.name : `${data.name.slice(0, 30)}`}`}
+                {data.name.length > 30 && (
+                  <span className={styles['show-more']}>
+                    {`... ${(titleExtended || data.name.length <= 30) ? 'Menos' : 'Más'}`}
+                  </span>
+                )}
+              </p>
+            </Card.Header>
 
             <Form>
               <div>
@@ -182,14 +206,43 @@ class Product extends Component {
         )}
 
         {!editing && (
-          <Card.Content>
-            <Card.Header>{data.name}</Card.Header>
+          <Card.Content className={styles['card-content']}>
+            <Card.Header>
+              <p className={styles['card-content-paragraph']}>
+                {(titleExtended || data.name.length <= 30) ? data.name : `${data.name.slice(0, 30)}`}
+                <span
+                  className={styles['show-more']}
+                  onClick={() => data.name.length > 30 ? this.setState({titleExtended: !titleExtended}) : null}
+                >
+                  {data.name.length > 30 && (
+                    <span className={styles['show-more']}>
+                      {`... ${(titleExtended || data.name.length <= 30) ? 'Menos' : 'Más'}`}
+                    </span>
+                  )}
+                </span>
+              </p>
+            </Card.Header>
 
             <Card.Meta>
               <span>{data.price}</span>
             </Card.Meta>
 
-            <Card.Description>{data.description}</Card.Description>
+            <Card.Description>
+              <p>
+              {(descriptionExtended || data.description.length <= 175) ? data.description : `${data.description.slice(0, 175)}`}
+
+                <span
+                  className={styles['show-more']}
+                  onClick={() => data.description.length > 175 ? this.setState({descriptionExtended: !descriptionExtended}) : null}
+                >
+                  {data.description.length > 175 && (
+                    <span className={styles['show-more']}>
+                      {`... ${(descriptionExtended || data.description.length <= 175) ? 'Menos' : 'Más'}`}
+                    </span>
+                  )}
+                </span>
+              </p>
+            </Card.Description>
           </Card.Content>
         )}
 
@@ -204,6 +257,7 @@ class Product extends Component {
                     this.setState({editing: true});
                   }}
                 />
+
                 <Button
                   circular
                   icon='cancel'

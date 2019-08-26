@@ -36,8 +36,6 @@ class Home extends Component {
     this.state = {};
   }
 
-
-
   render() {
     const {nav} = this;
 
