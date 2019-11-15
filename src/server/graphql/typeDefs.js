@@ -1,8 +1,26 @@
 //  Dependencies
-const { gql } = require('apollo-server');
+const {gql} = require('apollo-server');
 
 export default gql`
-  type Query {
-    product(id: String!): String
-  }
+    input NewUser {
+        id: ID
+        password: String!
+        email: String!
+        name: String!
+    }
+    
+    type User {
+        id: ID
+        email: String
+        name: String
+        avatar: String
+    }
+
+    type Query {
+        user: User
+    }
+  
+    type Mutation {
+        newUser(input: NewUser) : User
+    }
 `;

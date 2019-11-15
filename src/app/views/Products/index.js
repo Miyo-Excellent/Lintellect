@@ -2,20 +2,20 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Container} from 'semantic-ui-react';
-import Products from '../../common-components/Products';
+import ProductsComponent from '../../common-components/Products';
 import AddProduct from '../../common-components/AddProduct';
 import {Layout, Tabs} from '../../common-components';
 
 //  Actions
 
 // Styles
-import styles from './home.scss';
+import styles from './products.scss';
 
-class Home extends Component {
+class Products extends Component {
   static navRenderChildren(path) {
     switch (path) {
       case 'products':
-        return <Products />;
+        return <ProductsComponent />;
 
       case 'newProduct':
         return <AddProduct />;
@@ -29,8 +29,8 @@ class Home extends Component {
     super(props);
 
     this.nav = [
-      {title: 'Productos', Children: () => Home.navRenderChildren('products')},
-      {title: 'Crear un Producto', Children: () => Home.navRenderChildren('newProduct')}
+      {title: 'Productos', Children: () => Products.navRenderChildren('products')},
+      {title: 'Crear un Producto', Children: () => Products.navRenderChildren('newProduct')}
     ];
 
     this.state = {};
@@ -55,4 +55,4 @@ const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps)(Products);

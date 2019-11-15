@@ -5,19 +5,18 @@ import {connect} from 'react-redux';
 import {Redirect} from 'react-router-dom';
 //  import _ from 'lodash';
 
+//  Actions
+import {updateUser} from "../../app.actions";
+
 //  Styles
 import styles from './bar.scss';
-
-const mapStateToProps = ({}) => ({});
-
-const mapDispatchToProps = dispatch => ({});
 
 class Bar extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      activeItem: props.pathname.slice(1,),
+      activeItem: location.pathname.slice(1,),
       redirect: false,
       path: ''
     };
@@ -27,16 +26,24 @@ class Bar extends Component {
   }
 
   handleItemClick(e, {name}) {
-    this.setState({
-      activeItem: name !== 'Home' ? name : '',
-      path: name !== 'Home' ? name : '',
-      redirect: true
-    });
+    debugger;
+    if (!new RegExp(name, 'i').test(this.state.activeItem)) {
+      debugger;
+      this.setState({
+        activeItem: name,
+        path: name !== 'Products' ? name : '',
+        redirect: true
+      });
+    }
   }
 
   onSingOut() {
     localStorage.removeItem('TOKEN');
-    this.setState({redirect: true, path: 'login'});
+    localStorage.removeItem('USER');
+    this.setState({redirect: true, path: 'login'}, async () => {
+      await this.props.updateUser({});
+      await location.reload();
+    });
   }
 
   render() {
@@ -44,8 +51,8 @@ class Bar extends Component {
     const {history} = this.props;
 
     if (redirect) {
+      debugger;
       history.replace({pathname: path === '' ? '/' : `/${path}`});
-      location.reload();
       return (
         <Redirect to={`/${path}`} exac/>
       );
@@ -56,13 +63,13 @@ class Bar extends Component {
         <Menu pointing>
           <Menu.Menu position='left'>
             <Menu.Item
-              name='Home'
+              name='Products'
               active={activeItem === ''}
               onClick={this.handleItemClick}
             />
             <Menu.Item
-              name='About'
-              active={activeItem === 'About'}
+              name='Users'
+              active={activeItem === 'Users'}
               onClick={this.handleItemClick}
             />
             <Menu.Item
@@ -88,5 +95,13 @@ class Bar extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.app.user
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateUser: (user = {}) => updateUser(dispatch, user)
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Bar);

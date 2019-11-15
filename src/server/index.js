@@ -14,6 +14,8 @@ import webpackHotServerMiddleware from 'webpack-hot-server-middleware';
 import {ApolloServer} from 'apollo-server-express';
 import firebase from 'firebase-admin';
 import cloudinary from 'cloudinary';
+import cookieSession from 'cookie-session';
+
 import logger from './logger';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +44,8 @@ import api from './api';
 
 /****************************************Controllers**********************************************/
 import {deleteProducts, getProduct, getProducts, saveProduct, updateProducts} from './controllers/products';
-import {signIn, signInWithGoogle, signUp} from './controllers/user';
+import {deleteUser, getUser, getUsers, signIn, signInWithGoogle, signUp} from './controllers/user';
+import * as clientController from './controllers/client';
 
 /******************************************Firebase************************************************/
 firebase.initializeApp(serverConfig.firebase);
@@ -69,7 +72,7 @@ const compiler = webpack(webpackConfig);
 const port = process.env.NODE_PORT || 3000;
 
 /***************************************Apollo Server*******************************************/
-const apolloServer = new ApolloServer({typeDefs, resolvers});
+const apolloServer = new ApolloServer({ typeDefs, resolvers });
 
 try {
   apolloServer.applyMiddleware({app});
@@ -107,6 +110,14 @@ try {
 // parse application/x-www-form-urlencoded
 try {
   app.use(bodyParser.urlencoded({extended: false}));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+/*****************************************Cookie Session********************************************/
+try {
+  app.use(cookieSession(serverConfig.cookieSession));
 } catch (error) {
   logger.error(error);
   console.log(error);
@@ -174,21 +185,85 @@ try {
 
 //  Users
 try {
-  app.post('/signin', async (req, res, next) => signIn(req, res, next));
+  app.get('/api/users', isAuth, async (req, res, next) => await getUsers(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.post('/signin-with-google', async (req, res, next) => signInWithGoogle(req, res, next));
+  app.get('/api/user/:userId', isAuth, async (req, res, next) => await getUser(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.post('/signup', async (req, res, next) => signUp(req, res, next));
+  app.delete('/api/user/:userId', isAuth, async (req, res, next) => await deleteUser(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.post('/signin', async (req, res, next) => await signIn(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.post('/signin-with-google', async (req, res, next) => await signInWithGoogle(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.post('/signup', async (req, res, next) => await signUp(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+//  Clients
+try {
+  app.get('/api/clients', isAuth, async (req, res, next) => await clientController.getClients(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.get('/api/client/:clientId', isAuth, async (req, res, next) => await clientController.getClient(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.delete('/api/client/:clientId', isAuth, async (req, res, next) => await clientController.deleteClient(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.post('/client/signin', async (req, res, next) => await clientController.signIn(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.post('/client/signin-with-google', async (req, res, next) => await clientController.signInWithGoogle(req, res, next));
+} catch (error) {
+  logger.error(error);
+  console.log(error);
+}
+
+try {
+  app.post('/signup', async (req, res, next) => await signUp(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
@@ -196,35 +271,35 @@ try {
 
 //  Products
 try {
-  app.get('/api/products', isAuth, async (req, res, next) => getProducts(req, res, next));
+  app.get('/api/products', isAuth, async (req, res, next) => await getProducts(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.get('/api/product/:productId', isAuth, async (req, res, next) => getProduct(req, res, next));
+  app.get('/api/product/:productId', isAuth, async (req, res, next) => await getProduct(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.post('/api/product', isAuth, async (req, res, next) => saveProduct(req, res, next));
+  app.post('/api/product', isAuth, async (req, res, next) => await saveProduct(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.put('/api/product/:productId', isAuth, async (req, res, next) => updateProducts(req, res, next));
+  app.put('/api/product/:productId', isAuth, async (req, res, next) => await updateProducts(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);
 }
 
 try {
-  app.delete('/api/product/:productId', isAuth, async (req, res, next) => deleteProducts(req, res, next));
+  app.delete('/api/product/:productId', isAuth, async (req, res, next) => await deleteProducts(req, res, next));
 } catch (error) {
   logger.error(error);
   console.log(error);

@@ -33,6 +33,11 @@ const cloudinary = {
   api_secret: 'JeiN1mVtFmN_lTFV5F3OROnnRCU'
 };
 
-const config = {db, graphqlOptions, SECRET_TOKEN, firebase, cloudinary};
+const cookieSession = {
+  secret: 'A_SECREST_STRING',
+  maxAge: (24 * 60 * 60 * 1000) * 8
+};
+
+const config = {db, graphqlOptions, SECRET_TOKEN, firebase, cloudinary, cookieSession};
 
 export default config;

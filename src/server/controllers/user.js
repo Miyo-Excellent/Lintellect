@@ -7,36 +7,113 @@ import _ from 'lodash';
 import logger from '../logger';
 import validations from '../validations';
 
+//  Utils
+import hashGenerator from '../../shared/utils/hashGenerator';
+import getGravatar from '../../shared/utils/getGravatar';
+
 //  Models
 import {User} from '../models';
 
 //  Services
 import {createToken} from '../services';
 
-function hashGenerator(password, salt, callback, onError) {
-  bcrypt.genSalt(salt, function (error, _salt_) {
+export async function getUsers(req, res) {
+  logger.info(`GET:[ip:${req.ip}] /api/users`);
+  console.info(`GET:[ip:${req.ip}] /api/users`);
+
+  await User.find(function (error, users) {
     if (error) {
-      return onError();
+      logger.error(`GET:[ip:${req.ip}] Error al solicitar los usuarios en la base de datos ${error}`);
+      console.error(`GET:[ip:${req.ip}] Error al solicitar los usuarios en la base de datos ${error}`);
+
+      return res.status(500).send({message: `Error al solicitar los usuarios en la base de datos ${error}`});
     }
 
-    bcrypt.hash(password, _salt_, function (err, hash) {
-      if (error) {
-        return onError();
-      }
+    if (!users) {
+      logger.error(`GET:[ip:${req.ip}] No hay usuarios disponibles`);
+      console.error(`GET:[ip:${req.ip}] No hay usuarios disponibles`);
 
-      callback(hash);
-    });
+      return res.status(404).send({message: 'No hay usuarios disponibles'});
+    }
+
+    logger.info(`GET:[ip:${req.ip}] Han solicitado todos los usuarios`);
+    console.info(`GET:[ip:${req.ip}] Han solicitado todos los usuarios`);
+
+    return res.status(200).send({users: _.map(users, ({avatar, email, name, _id, rol}) => ({
+      avatar,
+      email,
+      name,
+      id: _id,
+      products: [],
+      rol
+    }))});
   });
 }
 
-function getGravatar(email) {
-  if (!email) {
-    return 'https://gravatar.com/avatar/?s=200&d=retro';
-  }
+export async function getUser(req, res) {
+  logger.info(`GET:[ip:${req.ip}] /api/user`);
+  console.info(`GET:[ip:${req.ip}] /api/user`);
 
-  const md5 = crypto.createHash('md5').update(email).digest('hex');
+  const userId = req.params.userId || req.body.userId || req.query.userId;
 
-  return `https://gravatar.com/avatar/${md5}?s=200&d=retro`;
+  await User.findById(userId, function (error, user) {
+    if (error) {
+      logger.error(`GET:[ip:${req.ip}] Error al solicitar usuario en la base de datos ${error}`);
+      console.error(`GET:[ip:${req.ip}] Error al solicitar usuario en la base de datos ${error}`);
+
+      return res.status(500).send({message: `Error al solicitar usuario en la base de datos ${error}`});
+    }
+
+    if (!user) {
+      logger.error(`GET:[ip:${req.ip}] El usuario [ID: ${userId}] no existe`);
+      console.error(`GET:[ip:${req.ip}] El usuario [ID: ${userId}] no existe`);
+
+      return res.status(404).send({message: 'El usuario no existe'});
+    }
+
+    logger.info(`GET:[ip:${req.ip}] Han solicitado el usuario [ID: ${userId}]`);
+    console.info(`GET:[ip:${req.ip}] Han solicitado el usuario [ID: ${userId}]`);
+
+    debugger;
+    return res.status(200).send({user});
+  });
+}
+
+export async function deleteUser(req, res) {
+  logger.info(`DELETE:[ip:${req.ip}] /api/user`);
+  console.info(`DELETE:[ip:${req.ip}] /api/user`);
+
+  const {userId} = await req.params;
+
+  await User.findById(userId, function (error, user) {
+    if (error) {
+      logger.error(`DELETE:[IP: ${req.ip}] Error al borrar el usuario [ID: ${userId}] ${error}`);
+      console.error(`DELETE:[IP: ${req.ip}] Error al borrar el usuario [ID: ${userId}] ${error}`);
+
+      return res.status(500).send({message: `Error al borrar el usuario en la base de datos ${error}`});
+    }
+
+    if (!user) {
+      logger.error(`DELETE:[IP: ${req.ip}] El usuario [ID: ${userId}] no existe ${error}`);
+      console.error(`DELETE:[IP: ${req.ip}] El usuario [ID: ${userId}] no existe ${error}`);
+
+      return res.status(404).send({message: 'El usuario no existe'});
+    }
+
+    user.remove(error => {
+      if (error) {
+        logger.error(`DELETE:[IP: ${req.ip}] Error al guardar el usuario [ID: ${userId}] en la base de datos ${error}`);
+        console.error(`DELETE:[IP: ${req.ip}] Error al guardar el usuario [ID: ${userId}] en la base de datos ${error}`);
+
+        return res.status(500).send({message: `Error al guardar usuario en la base de datos ${error}`});
+      }
+
+      logger.error(`DELETE:[IP: ${req.ip}] El usuario [ID: ${userId}] ha sido eliminado`);
+      console.error(`DELETE:[IP: ${req.ip}] El usuario [ID: ${userId}] ha sido eliminado`);
+
+      res.status(200).send({message: 'El usuario ha sido eliminado', user});
+    });
+  });
 }
 
 export async function signIn(req, res, next) {
@@ -81,18 +158,28 @@ export async function signIn(req, res, next) {
       return next();
     }
 
+    const token = createToken(user);
+    const userData = {
+      avatar: user.avatar,
+      email: user.email,
+      _id: user.id,
+      name: user.name,
+      rol: user.rol
+    };
+
     logger.info(`POST:[IP: ${req.ip}] El usuario ${email[0]} se ha logeado correctamente`);
     console.info(`POST:[IP: ${req.ip}] El usuario ${email[0]} se ha logeado correctamente`);
 
+    res.locals.user = user;
+    req.session.user = user;
+    req.session.token = token;
+
+    debugger;
+
     res.status(200).send({
-      user: {
-        id: user._id,
-        name: user.name,
-        avatar: user.avatar,
-        email: email[0]
-      },
+      user: userData,
       message: 'Te has logeado correctamente',
-      token: createToken(user)
+      token
     });
     return next();
   });
@@ -147,6 +234,12 @@ export async function signInWithGoogle(req, res, next) {
 
       res.status(200).send({
         message: 'Te has logeado correctamente',
+        user: {
+          avatar: user[0].avatar,
+          email: user[0].email,
+          id: user[0].id,
+          name: user[0].name
+        },
         token: createToken(user)
       });
 
@@ -188,7 +281,8 @@ export async function signUp(req, res, next, extra) {
         email: options.email,
         name: options.name,
         password: cryptoPassword,
-        avatar: getGravatar(options.email)
+        avatar: getGravatar(options.email),
+        rol: 'ADMINISTRATOR'
       });
 
       user.save(function (error, userStored) {

@@ -13,17 +13,11 @@ const isAnalyzer = process.env.ANALYZER === 'true';
 export default type => {
   const plugins = [
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new ExtractTextPlugin({
-      filename: '../../public/css/style.css'
-    })
+    new ExtractTextPlugin({ filename: '../../public/css/style.css' })
   ];
 
   if (isAnalyzer) {
-    plugins.push(
-      new BundleAnalyzerPlugin({
-        analyzerMode: 'static'
-      })
-    );
+    plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
   }
 
   if (type === 'client') {

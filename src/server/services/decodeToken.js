@@ -8,7 +8,7 @@ import serverConfig from '../config';
 export default async function decodeToken(token) {
   return new Promise((resolve, reject) => {
     try {
-      const payload = jwt.encode(token, serverConfig.SECRET_TOKEN);
+      const payload = jwt.decode(token, serverConfig.SECRET_TOKEN);
 
       if (payload.exp <= moment().unix()) {
         reject({

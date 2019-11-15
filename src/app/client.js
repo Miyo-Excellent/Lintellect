@@ -19,7 +19,7 @@ import App from './App';
 firebase.initializeApp(config.firebase);
 
 // Configuring Redux Store
-const store = configureStore(window.initialState);
+export const store = configureStore(window.initialState);
 
 // DOM
 const rootElement = document.getElementById('root');

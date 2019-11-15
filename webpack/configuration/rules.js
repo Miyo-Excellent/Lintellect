@@ -1,5 +1,6 @@
 // Dependencies
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import sharp from 'responsive-loader/sharp';
 
 // Environment
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -9,6 +10,15 @@ import pkg from '../../package.json';
 
 export default type => {
   const rules = [
+    {
+      test: /\.(html)$/,
+      use: {
+        loader: 'html-loader',
+        options: {
+          attrs: [':data-src']
+        }
+      }
+    },
     {
       test: /\.js$/,
       exclude: /node_modules/,
@@ -20,7 +30,6 @@ export default type => {
             'transform-class-properties'
           ],
           presets: [
-            'es2015',
             'react',
             'stage-0',
             'stage-2',
@@ -48,6 +57,36 @@ export default type => {
         }
       ]
     },
+    {//-- (GIF | PNG | JPG | JPEG) [ OPTIMIZATION / COMPRESS ]
+      test: /\.(gif|png|jpe?g)$/i,
+      use: [
+        { loader: 'babel-loader' },
+        { loader: 'file-loader' },
+        {
+          loader: 'image-webpack-loader',
+          options: {
+            disable: true, // webpack@2.x and newer
+            mozjpeg: {
+              progressive: true,
+              quality: 65
+            },
+            optipng: { // optipng.enabled: false will disable optipng
+              enabled: false
+            },
+            pngquant: {
+              quality: '65-90',
+              speed: 4
+            },
+            gifsicle: {
+              interlaced: false
+            },
+            webp: { // the webp option will enable WEBP
+              quality: 75
+            }
+          }
+        }
+      ]
+    },
     {//-- (PNG || JPG)
       test: /\.(png|jpg|gif)?$/,
       use: [
@@ -61,20 +100,45 @@ export default type => {
             useRelativePath: false,//-- Generar una URL relativa al contexto para cada archivo
             emitFile: true//-- Emitir un archivo para paquetes del lado del servidor
           }
+        },
+        {
+          loader: 'responsive-loader',
+          options: {
+            adapter: sharp
+          }
         }
       ]
     },
     {//-- SVG
-      test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+      test: /\.svg$/,
+      exclude: /node_modules/,
       use: [
-        {//-- URL-LOADER
-          loader: 'url-loader',
+        { loader: 'babel-loader' },
+        {
+          loader: 'svg-url-loader',
           options: {
-            limit: 10000,
-            mimetype: 'image/svg+xml',
-            fallback: 'responsive-loader'
+            //  limit: 10485760,
+            //  mimetype: 'images/svg+xml',
+            fallback: {
+              loader: 'responsive-loader',
+              options: { adapter: sharp }
+            }
           }
         }
+
+        //  {//-- URL-LOADER
+        //    loader: 'url-loader',
+        //    options: {
+        //      limit: 10485760,
+        //      mimetype: 'images/svg+xml',
+        //      fallback: {
+        //        loader: 'responsive-loader',
+        //        options: {
+        //          adapter: sharp
+        //        }
+        //      }
+        //    }
+        //  }
       ]
     }
   ];

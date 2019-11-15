@@ -1,14 +1,14 @@
 // Containers
-import Home from '../app/views/Home';
+import Products from '../app/views/Products';
 import Login from '../app/views/Login';
-import About from '../app/views/About';
+import Users from '../app/views/Users';
 import Blog from '../app/views/Blog/';
 import Register from '../app/views/Register/';
 
 const routes = [
   {
     path: '/',
-    component: Home,
+    component: Products,
     exact: true
   },
   {
@@ -16,8 +16,8 @@ const routes = [
     component: Login
   },
   {
-    path: '/About',
-    component: About
+    path: '/Users',
+    component: Users
   },
   {
     path: '/Blog',

@@ -11,6 +11,7 @@ import styles from './login.scss';
 
 export default class Register extends Component {
   static token = localStorage.getItem('TOKEN');
+  static user = localStorage.getItem('USER');
 
   constructor(props) {
     super(props);
@@ -47,6 +48,7 @@ export default class Register extends Component {
       axios.post('http://localhost:3000/signup', formData)
         .then(({data}) => {
           localStorage.setItem('TOKEN', `Bearer ${data.token}`);
+          localStorage.setItem('USER', `Bearer ${data.user}`);
 
           this.setState(state => ({
             ...state,

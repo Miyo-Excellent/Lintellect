@@ -3,6 +3,11 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import {Redirect, Link} from 'react-router-dom';
 import {Container, Button, Form} from 'semantic-ui-react';
+import {connect} from 'react-redux';
+import _ from 'lodash';
+
+//  Actions
+import {updateUser} from '../../app.actions';
 
 //  Components
 import {Google} from './components';
@@ -12,6 +17,7 @@ import styles from './login.scss';
 
 class Login extends Component {
   static token = localStorage.getItem('TOKEN');
+  static user = localStorage.getItem('user');
 
   constructor(props) {
     super(props);
@@ -29,30 +35,34 @@ class Login extends Component {
   }
 
   componentWillMount() {
-    if (Login.token) {
+    if (!_.isEmpty(Login.token) && !_.isEmpty(Login.token)) {
       this.setState({redirect: true, path: ''});
     }
   }
 
   async onLogin() {
-    const formData = new FormData();
-    const {email, password} = this.state;
+    const {email, password, redirect} = this.state;
 
-    if (email && password) {
+    if (email && password && !redirect) {
+      const formData = new FormData();
+
       formData.append('email', email);
       formData.append('password', password);
 
       await axios.post('http://localhost:3000/signin', formData)
-        .then(({data}) => {
-          localStorage.setItem('TOKEN', `Bearer ${data.token}`);
+        .then(async ({data}) => {
+          const user = await JSON.stringify(data.user);
+          await localStorage.setItem('TOKEN', `Bearer ${data.token}`);
+          await localStorage.setItem('USER', user);
 
-          this.setState(state => ({
+          await this.setState(state => ({
             ...state,
             isFetching: false,
-            redirect: true,
+            redirect: false,
             path: ''
           }));
 
+          await location.reload();
         })
         .catch(error => console.log(error));
     } else {
@@ -72,13 +82,14 @@ class Login extends Component {
 
   render() {
     const {email, path, password, redirect} = this.state;
-    const {history} = this.props;
+    const {history, user} = this.props;
 
     const isValid = [email, password, password].every(element => !!element);
 
-    if (redirect) {
+    if (redirect && _.isEmpty(user)) {
       history.replace({pathname: path === '' ? '/' : `/${path}`});
-      //  location.reload();
+      this.setState({path: '',redirect: false});
+      location.reload();
       return (
         <Redirect to={`/${path}`}/>
       );
@@ -91,16 +102,19 @@ class Login extends Component {
             <Form.Input
               required
               fluid
-              label='Email'
-              placeholder='Email'
+              autocomplete="Email"
+              type="Email"
+              label="Email"
+              placeholder="Email"
               onChange={(_event_, {value}) => this.onChangeState({key: 'email', value})}
             />
 
             <Form.Input
               required
               fluid
-              label='Password'
-              placeholder='Password'
+              type="Password"
+              label="Password"
+              placeholder="Password"
               onChange={(_event_, {value}) => this.onChangeState({key: 'password', value})}
             />
 
@@ -130,4 +144,10 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({
+  user: state.app.user
+});
+
+const mapDispatchToProps = dispatch => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

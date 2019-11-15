@@ -1,17 +1,22 @@
 .container {
 }
 
-.mv5 {
-    margin: 5px auto;
-}
+.mv5 { margin: 5px auto; }
 
-.w100 {
-    width: 100%;
-}
+.w100 { width: 100%; }
 
 .center {
     margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.column { flex-direction: column; }
+
+.mv10 { margin: 10px auto; }
+
+.loader {
+    height: 100px;
+    width: 100%;
 }

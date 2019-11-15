@@ -2,12 +2,19 @@
 @import './global-mixins';
 @import "./normalize";
 
+*, *::before, *::after {
+    box-sizing: border-box !important;
+}
+
 .w100v {
     width: 100vw;
 }
+
 .h100v {
     height: 100vw;
 }
+
 body {
-  //    background-color: $gray;
+    width: 100vw;
+    height: auto;
 }

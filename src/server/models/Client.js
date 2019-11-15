@@ -2,7 +2,7 @@
 import mongoose, {Schema} from 'mongoose';
 
 //  Schema
-const UserSchema = Schema({
+const ClientSchema = Schema({
   email: {type: String, unique: true, lowercase: true},
   name: String,
   avatar: String,
@@ -13,4 +13,4 @@ const UserSchema = Schema({
   //  token: {type: String, unique: true, lowercase: true}
 });
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('Client', ClientSchema);

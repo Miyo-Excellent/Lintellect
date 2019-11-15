@@ -88,11 +88,9 @@ class Product extends Component {
 
     return (
       <Card>
-        {!editing && (
-          <div className={styles['card-image-container']}>
-            <Image className={styles['card-image']} src={data.picture.url} alt={data.name} ui/>
-          </div>
-        )}
+        <div className={styles['card-image-container']}>
+          <Image className={styles['card-image']} src={data.picture.url} alt={data.name} ui/>
+        </div>
 
         {editing && (
           <Card.Content>
@@ -229,7 +227,7 @@ class Product extends Component {
 
             <Card.Description>
               <p>
-              {(descriptionExtended || data.description.length <= 175) ? data.description : `${data.description.slice(0, 175)}`}
+                {(descriptionExtended || data.description.length <= 175) ? data.description : `${data.description.slice(0, 175)}`}
 
                 <span
                   className={styles['show-more']}

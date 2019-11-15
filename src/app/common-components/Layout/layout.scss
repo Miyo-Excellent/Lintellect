@@ -3,3 +3,19 @@
     height: 100vh;
     padding: 10px 20px;
 }
+
+.logo {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-img {
+    width: auto;
+    height: auto;
+    max-height: 200px;
+}

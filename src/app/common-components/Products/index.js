@@ -4,7 +4,7 @@ import _ from 'lodash';
 import {connect} from 'react-redux';
 
 //  API
-import {onDeleteProduct, onEditProduct} from './api';
+import {onDeleteProduct, onEditProduct} from '../../api';
 
 //  Actions
 import {fetchProducts} from './actions';
@@ -33,12 +33,8 @@ class Products extends Component {
     this.state = {};
   }
 
-  componentWillMount() {
-    this.props.updateProducts();
-  }
-
   render() {
-    const {products, updateProducts} = this.props;
+    const {products} = this.props;
 
     return (
       <div className={styles.products}>
@@ -56,8 +52,6 @@ const mapStateToProps = state => ({
   products: state.products.products
 });
 
-const mapDispatchToProps = dispatch => ({
-  updateProducts: (options = {}) => fetchProducts(dispatch, options)
-});
+const mapDispatchToProps = dispatch => ({});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Products);

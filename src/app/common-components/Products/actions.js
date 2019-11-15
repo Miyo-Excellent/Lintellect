@@ -2,7 +2,7 @@
 import _ from 'lodash';
 
 // Api
-import {getProducts, onDeleteProduct, onEditProduct} from './api';
+import {getProducts, onDeleteProduct, onEditProduct} from '../../api';
 
 // Action Types
 import {FETCH_PRODUCTS, FETCH_PRODUCTS_IS_FETCHING} from './actionTypes';
